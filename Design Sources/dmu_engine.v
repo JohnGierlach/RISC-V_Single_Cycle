@@ -28,5 +28,5 @@ module dmu_engine#(parameter WIDTH = 32)(
     end
     
 
-    assign out_data = read_en ? mem_storage[addr]:32'b0;
+    assign out_data = read_en ? mem_storage[addr-1]:32'b0;
 endmodule

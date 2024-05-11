@@ -24,14 +24,13 @@ module riscv_top #(parameter WIDTH = 32)
     
     program_counter PC(.clk(clk),
                        .rst(rst),
-                       .branch(branch),
-                       .in_pc(new_pc),
                        .out_pc(curr_pc));
     
     // Stores instructions in memory & fetches them from processing
     instruction_mem INSTRUCTION_MEMORY(.clk(clk), 
                                        .rst(rst), 
                                        .pc(curr_pc),
+                                       .offset(new_pc),
                                        .RD(RD),
                                        .RS1(RS1),
                                        .RS2(RS2),
@@ -78,8 +77,7 @@ module riscv_top #(parameter WIDTH = 32)
                            .write_data(RS2_data),
                            .out_data(MEM_data));
     
-    assign take_branch = branch & ALU_data;
-    assign new_pc = take_branch ? Funct7:curr_pc;
+    assign new_pc = branch ? Funct7:curr_pc;
     assign RD_data = read_en ? MEM_data:ALU_data;                                                                    
     assign rd = RD_data;
 endmodule

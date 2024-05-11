@@ -23,7 +23,6 @@ module alu_top#(parameter WIDTH = 32)
     
     reg[WIDTH-1:0] temp_RD;
     reg[WIDTH-1:0] mem_addr;
-    wire branch_val;
     
     always@(*)begin  
         if(rst)begin
