@@ -20,13 +20,12 @@ module dmu_engine#(parameter WIDTH = 32)(
             end
         end
         
-        
         // Write data to memory
         if(write_en)
             mem_storage[addr-1] <= write_data;
         
     end
-    
 
     assign out_data = read_en ? mem_storage[addr-1]:32'b0;
+
 endmodule
