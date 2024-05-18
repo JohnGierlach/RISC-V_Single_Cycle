@@ -82,7 +82,7 @@ module alu_top#(parameter WIDTH = 32)
             
         // Jump & Link Operations
         else if(opcode == 7'b1101111)
-            temp_RD <= pc-4;
+            temp_RD <= pc;
         
         else
             temp_RD <= 0;

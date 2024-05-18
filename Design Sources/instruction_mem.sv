@@ -10,8 +10,6 @@ module instruction_mem #(parameter WIDTH = 32)
     output [6:0] opcode,
     output read_en, write_en, branch, jump
     );
-
-    reg[WIDTH-1:0] addr;
     
     // FW registers
     reg[4:0] rd, rs2, rs1;
@@ -32,7 +30,7 @@ module instruction_mem #(parameter WIDTH = 32)
         32'h00115293, //SRLI
         32'h00211313, //SLLI
         32'h0032F3B3, //AND
-        32'h0001886F, //JAL
+        32'h0000C86F, //JAL
         32'h0032E433, //OR
         32'h0032C4B3, //XOR
         32'h40610533, //SUB
@@ -46,25 +44,7 @@ module instruction_mem #(parameter WIDTH = 32)
     };
 
     always@(posedge clk)begin
-        if(rst)
-            addr <= 32'b0;
-            
-        else
-            if(pc/4 < NUM_INST)begin
-                if(pc == 0)
-                    addr <= inst_rom[0];
-                
-                else
-                    if(branch)
-                        addr <= inst_rom[(pc+offset-4)/4];
-                    else 
-                        addr <= inst_rom[pc/4];
-            end
-    end
-
-    // Extract machine code to run proper FW assembly
-    always@(posedge clk)begin 
-        if(rst) begin
+        if(rst)begin
             rd <= 5'b0;
             rs2 <= 5'b0;
             rs1 <= 5'b0;
@@ -72,14 +52,37 @@ module instruction_mem #(parameter WIDTH = 32)
             funct3 <= 3'b0;
             Opcode <= 7'b0;
         end
-            
+        
         else begin
-                Opcode <= {addr[6:0]};
-                rd     <= {addr[11:7]};
-                funct3 <= {addr[14:12]};
-                rs1    <= {addr[19:15]};
-                rs2    <= {addr[24:20]};
-                funct7 <= {addr[31:25]};
+            if(pc/4 < NUM_INST)begin
+                if(pc == 0)begin
+                Opcode <= {inst_rom[0][6:0]};
+                rd     <= {inst_rom[0][11:7]};
+                funct3 <= {inst_rom[0][14:12]};
+                rs1    <= {inst_rom[0][19:15]};
+                rs2    <= {inst_rom[0][24:20]};
+                funct7 <= {inst_rom[0][31:25]}; 
+                end
+                
+                else begin
+                    if(branch || jump)begin
+                        Opcode <= {inst_rom[offset/4][6:0]};
+                        rd     <= {inst_rom[offset/4][11:7]};
+                        funct3 <= {inst_rom[offset/4][14:12]};
+                        rs1    <= {inst_rom[offset/4][19:15]};
+                        rs2    <= {inst_rom[offset/4][24:20]};
+                        funct7 <= {inst_rom[offset/4][31:25]};
+                    end
+                    else begin
+                        Opcode <= {inst_rom[pc/4][6:0]};
+                        rd     <= {inst_rom[pc/4][11:7]};
+                        funct3 <= {inst_rom[pc/4][14:12]};
+                        rs1    <= {inst_rom[pc/4][19:15]};
+                        rs2    <= {inst_rom[pc/4][24:20]};
+                        funct7 <= {inst_rom[pc/4][31:25]};
+                    end
+                end
+            end
         end
     end
     

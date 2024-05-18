@@ -39,6 +39,7 @@ module riscv_tb();
     SRLI x5, x1, 1
     SLLI x6, x2, 2
     AND x7, x5, x3
+    JAL x16, 12
     OR x8, x5, x3
     XOR x9, x5, x3
     SUB x10, x2, x6

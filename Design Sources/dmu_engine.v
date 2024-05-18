@@ -11,7 +11,7 @@ module dmu_engine#(parameter WIDTH = 32)(
     );
     
     integer i;
-    reg[WIDTH-1:0] mem_storage[WIDTH*4-1:0];
+    reg[WIDTH-1:0] mem_storage[0:WIDTH*4-1];
     
     always@(posedge clk)begin
         if(rst)begin
