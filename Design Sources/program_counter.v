@@ -23,6 +23,7 @@
 module program_counter#(parameter WIDTH = 32)(
     input clk,
     input rst,
+    input[WIDTH-1:0] new_pc,
     output[WIDTH-1:0] out_pc
     );
     
@@ -33,7 +34,7 @@ module program_counter#(parameter WIDTH = 32)(
             temp_pc <= 0;
         
         else begin
-            temp_pc <= temp_pc+4;
+            temp_pc <= new_pc+4;
         end
     end    
     

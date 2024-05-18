@@ -8,7 +8,7 @@ module instruction_mem #(parameter WIDTH = 32)
     output [6:0] Funct7,
     output [2:0] Funct3,
     output [6:0] opcode,
-    output read_en, write_en, branch
+    output read_en, write_en, branch, jump
     );
 
     reg[WIDTH-1:0] addr;
@@ -19,7 +19,7 @@ module instruction_mem #(parameter WIDTH = 32)
     reg[2:0] funct3;
     reg[6:0] Opcode;
     
-    localparam NUM_INST = 18;
+    localparam NUM_INST = 19;
     
     // Last instruction must be a NO-OP 
     reg[WIDTH-1:0] inst_rom [0:NUM_INST-1] = 
@@ -32,6 +32,7 @@ module instruction_mem #(parameter WIDTH = 32)
         32'h00115293, //SRLI
         32'h00211313, //SLLI
         32'h0032F3B3, //AND
+        32'h0001886F, //JAL
         32'h0032E433, //OR
         32'h0032C4B3, //XOR
         32'h40610533, //SUB
@@ -90,6 +91,7 @@ module instruction_mem #(parameter WIDTH = 32)
     assign opcode = Opcode;
     assign read_en = Opcode == 7'b0000011 ? 1:0;
     assign write_en = Opcode == 7'b0100011 ? 1:0;
-    assign branch = (addr[6:0] == 7'b1100011) ? 1:0;
+    assign branch = (Opcode == 7'b1100011) ? 1:0;
+    assign jump = (Opcode == 7'b1101111) ? 1:0;
     
 endmodule

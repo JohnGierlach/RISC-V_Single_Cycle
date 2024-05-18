@@ -4,6 +4,7 @@ module alu_top#(parameter WIDTH = 32)
 (
     input clk,
     input rst,
+    input[WIDTH-1:0] pc,
     input signed[WIDTH-1:0] RS1,
     input signed[WIDTH-1:0] RS2,
     input[2:0] Funct3,
@@ -78,6 +79,10 @@ module alu_top#(parameter WIDTH = 32)
         // Store Word Operations
         else if(opcode == 7'b0100011)
             mem_addr <= RS1 + Imm_reg[11:5];
+            
+        // Jump & Link Operations
+        else if(opcode == 7'b1101111)
+            temp_RD <= pc-4;
         
         else
             temp_RD <= 0;

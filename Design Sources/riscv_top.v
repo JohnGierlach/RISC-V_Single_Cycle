@@ -20,10 +20,11 @@ module riscv_top #(parameter WIDTH = 32)
     wire[6:0] opcode;
     
     
-    wire read_en, write_en, branch, take_branch;
+    wire read_en, write_en, branch, take_branch, jump;
     
     program_counter PC(.clk(clk),
                        .rst(rst),
+                       .new_pc(new_pc),
                        .out_pc(curr_pc));
     
     // Stores instructions in memory & fetches them from processing
@@ -39,6 +40,7 @@ module riscv_top #(parameter WIDTH = 32)
                                        .read_en(read_en),
                                        .write_en(write_en),
                                        .branch(branch),
+                                       .jump(jump),
                                        .opcode(opcode));    
     
     // Register select module 
@@ -54,7 +56,8 @@ module riscv_top #(parameter WIDTH = 32)
                                       
     // ALU engine to perform math calculations
     alu_top ALU_ENGINE(.clk(clk), 
-                       .rst(rst), 
+                       .rst(rst),
+                       .pc(curr_pc), 
                        .RS1(RS1_data), 
                        .RS2(RS2_data), 
                        .Funct3(Funct3), 
@@ -77,7 +80,7 @@ module riscv_top #(parameter WIDTH = 32)
                            .write_data(RS2_data),
                            .out_data(MEM_data));
     
-    assign new_pc = branch ? Funct7:curr_pc;
+    assign new_pc = branch ? Funct7: jump ? {Funct7, RS2, RS1, Funct3}:curr_pc;
     assign RD_data = read_en ? MEM_data:ALU_data;                                                                    
     assign rd = RD_data;
 endmodule
