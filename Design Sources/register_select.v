@@ -15,6 +15,7 @@ module register_select #(parameter WIDTH = 32)(
         end
         
         else begin
+            // if reg_write_en -> opcode is lw or r-type
             if(!write_en)
                 Reg_list[RD] <= RD_data;
         end

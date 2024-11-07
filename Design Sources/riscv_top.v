@@ -20,7 +20,7 @@ module riscv_top #(parameter WIDTH = 32)
     wire[6:0] opcode;
     
     
-    wire read_en, write_en, branch, take_branch, jump;
+    wire read_en, write_en, branch, jump;
     
     program_counter PC(.clk(clk),
                        .rst(rst),
