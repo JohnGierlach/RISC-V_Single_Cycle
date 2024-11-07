@@ -1,12 +1,14 @@
 // Object class
 
-class alu_base_sequence extends uvm_sequence;
+
+// This is our reset sequence
+class base_sequence extends uvm_sequence;
 	
-  `uvm_object_utils(alu_base_sequence)
+  `uvm_object_utils(base_sequence)
   
   alu_sequence_item reset_pkt;
   
-  function new(string name = "alu_base_sequence");
+  function new(string name = "base_sequence");
     super.new(name);
     `uvm_info("BASE_SEQ", "Inside Constructor!", UVM_HIGH);
   endfunction: new
@@ -24,16 +26,16 @@ class alu_base_sequence extends uvm_sequence;
     
   endtask: body
 	
-endclass: alu_base_sequence
+endclass: base_sequence
 
 
-class alu_test_sequence extends alu_base_sequence;
+class initialize_regs_sequence extends base_sequence;
 	
-  `uvm_object_utils(alu_test_sequence)
+  `uvm_object_utils(initialize_regs_sequence)
   
   alu_sequence_item item;
   
-  function new(string name = "alu_base_sequence");
+  function new(string name = "initialize_regs_sequence");
     super.new(name);
     `uvm_info("TEST_SEQ", "Inside Constructor!", UVM_HIGH);
   endfunction: new
@@ -51,4 +53,4 @@ class alu_test_sequence extends alu_base_sequence;
     
   endtask: body
 	
-endclass: alu_test_sequence
+endclass: initialize_regs_sequence
