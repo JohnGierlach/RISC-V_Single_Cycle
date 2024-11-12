@@ -51,8 +51,8 @@ module alu_top#(parameter WIDTH = 32)
             case(Funct3)
                 ADD:  temp_RD <= (Funct7 == 7'h20) ? RS1 - Imm_reg : RS1 + Imm_reg; //Add SUB based on Funct7
                 SLL:  temp_RD <= RS1 << Shamt;
-                SLT:  temp_RD <= (Imm_reg < RS1) ? 1'b1:1'b0;
-                SLTU: temp_RD <= (Imm_reg < RS1) ? 1'b1:1'b0;
+                SLT:  temp_RD <= (RS1 < Imm_reg) ? 1'b1:1'b0;
+                SLTU: temp_RD <= (RS1 < Imm_reg) ? 1'b1:1'b0;
                 XOR:  temp_RD <= Imm_reg ^ RS1; 
                 SRL:  temp_RD <= (Funct7 == 7'h20) ? RS1 >>> Shamt : RS1 >> Shamt;
                 OR:   temp_RD <= Imm_reg | RS1;
