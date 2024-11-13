@@ -26,7 +26,7 @@ class data_tx_test extends uvm_test;
     super.build_phase(phase);
     `uvm_info("TEST_CLASS", "Build Phase!", UVM_HIGH)
 
-    env = alu_env::type_id::create("env", this);
+    env = data_tx_env::type_id::create("env", this);
 
   endfunction: build_phase
 

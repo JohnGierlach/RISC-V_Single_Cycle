@@ -1,11 +1,11 @@
-class alu_agent extends uvm_agent;
-  `uvm_component_utils(alu_agent)
+class data_tx_agent extends uvm_agent;
+  `uvm_component_utils(data_tx_agent)
   
    alu_driver drv;
    alu_monitor mon;
    alu_sequencer seqr;
   
-  function new(string name = "alu_agent", uvm_component parent);
+  function new(string name = "data_tx_agent", uvm_component parent);
     super.new(name, parent);
     `uvm_info("AGENT_CLASS", "Inside Constructor!", UVM_HIGH)
   endfunction: new
@@ -44,4 +44,4 @@ class alu_agent extends uvm_agent;
     
     
   endtask: run_phase
-endclass: alu_agent
+endclass: data_tx_agent

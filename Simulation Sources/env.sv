@@ -1,10 +1,10 @@
-class alu_env extends uvm_env;
-  `uvm_component_utils(alu_env)
+class data_tx_env extends uvm_env;
+  `uvm_component_utils(data_tx_env)
   
-  alu_agent agnt;
-  alu_scoreboard scb;
+  data_tx_agent agnt;
+  data_tx_scoreboard scb;
   
-  function new(string name = "alu_env", uvm_component parent);
+  function new(string name = "data_tx_env", uvm_component parent);
     super.new(name, parent);
     `uvm_info("ENV_CLASS", "Inside Constructor!", UVM_HIGH)
   endfunction: new
@@ -16,8 +16,8 @@ class alu_env extends uvm_env;
     super.build_phase(phase);
     `uvm_info("ENV_CLASS", "Build Phase!", UVM_HIGH)
     
-    agnt = alu_agent::type_id::create("agnt", this);
-    scb = alu_scoreboard::type_id::create("scb", this);
+    agnt = data_tx_agent::type_id::create("agnt", this);
+    scb = data_tx_scoreboard::type_id::create("scb", this);
     
   endfunction: build_phase
 
@@ -42,4 +42,4 @@ class alu_env extends uvm_env;
     
     
   endtask: run_phase
-endclass: alu_env
+endclass: data_tx_env
