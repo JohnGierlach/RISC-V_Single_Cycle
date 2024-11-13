@@ -78,7 +78,7 @@ module alu_top#(parameter WIDTH = 32)
         
         // Store Word Operations
         else if(opcode == 7'b0100011)
-            mem_addr <= RS1 + Imm_reg[11:5];
+            mem_addr <= RS1 + Imm_reg;
             
         // Jump & Link Operations
         else if(opcode == 7'b1101111)

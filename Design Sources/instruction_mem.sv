@@ -35,7 +35,7 @@ module instruction_mem #(parameter WIDTH = 32)
         32'h0032C4B3, //XOR
         32'h40610533, //SUB
         32'h004155B3, //SRL
-        32'h08A02223, //SW
+        32'h00A02223, //SW
         32'h00411633, //SLL
         32'h40555693, //SRAI
         32'h40555733, //SRA
