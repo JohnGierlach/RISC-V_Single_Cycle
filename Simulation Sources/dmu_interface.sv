@@ -1,4 +1,4 @@
-interface alu_interface(input logic clock);
+interface dmu_interface(input logic clock);
   
     logic clk,
     logic rst,
@@ -9,4 +9,4 @@ interface alu_interface(input logic clock);
     logic[WIDTH-1:0] out_data
   
   
-endinterface: alu_interface
+endinterface: dmu_interface

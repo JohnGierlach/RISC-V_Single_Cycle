@@ -79,7 +79,7 @@ module top;
   
   
   initial begin
-    run_test("alu_test");
+    run_test("data_tx_test");
   end
   
   initial begin

@@ -1,16 +1,19 @@
 
-class alu_test extends uvm_test;
-  `uvm_component_utils(alu_test)
+class data_tx_test extends uvm_test;
+  `uvm_component_utils(data_tx_test)
 
-  alu_env env;
-  alu_base_sequence reset_seq;
-  alu_test_sequence test_seq;
+  data_tx_env           env;
+  base_sequence         reset_seq;
+  init_regs_sequence    init_regs_seq;
+  r_i_type_alu_sequence r_i_type_alu_seq;
+  write_sequence        wr_seq;
+  read_sequence         rd_seq;
 
   
   //--------------------------------------------------------
   //Constructor
   //--------------------------------------------------------
-  function new(string name = "alu_test", uvm_component parent);
+  function new(string name = "data_tx_test", uvm_component parent);
     super.new(name, parent);
     `uvm_info("TEST_CLASS", "Inside Constructor!", UVM_HIGH)
   endfunction: new
@@ -64,4 +67,4 @@ class alu_test extends uvm_test;
   endtask: run_phase
 
 
-endclass: alu_test
+endclass: data_tx_test
