@@ -37,7 +37,8 @@ class init_regs_sequence extends base_sequence;
 	
   `uvm_object_utils(init_regs_sequence)
   
-  alu_sequence_item item;
+  alu_sequence_item alu_item;
+  rf_sequence_item rf_item;
   
   function new(string name = "init_regs_sequence");
     super.new(name);
@@ -47,12 +48,35 @@ class init_regs_sequence extends base_sequence;
   task body();
     `uvm_info("TEST_SEQ", "Inside body task!", UVM_HIGH);
     
-    item = alu_sequence_item::type_id::create("item");
-    start_item(item);
+    alu_item = alu_sequence_item::type_id::create("alu_item");
+    rf_item = rf_sequence_item::type_id::create("alu_item");
+
+    start_item(alu_item);
+    start_item(rf_item);
     
-    item.randomize() with {reset==0;};
+    rf_item.randomize() with 
+    {
+      rst == 0;
+      RD == RS1;
+      write_en == 1;
+    };
+
+    alu_item.randomize() with 
+    {
+      rst == 0;
+
+      // No PC or Shamt used during init registers sequence
+      pc == 0;
+      Shamt == 0;
+
+      // Sets operation as ADDI 
+      opcode == 7'h13;
+      funct3 == 3'h0;
+      funct7 == 7'h00;
+    };
     
-    finish_item(item);
+    finish_item(alu_item);
+    finish_item(rf_item);
     
     
   endtask: body
