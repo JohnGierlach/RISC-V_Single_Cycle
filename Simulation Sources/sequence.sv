@@ -8,8 +8,10 @@ class base_sequence extends uvm_sequence;
 	
   `uvm_object_utils(base_sequence)
   
-  alu_sequence_item reset_pkt;
-  
+  alu_sequence_item alu_reset_pkt;
+  rf_sequence_item rf_reset_pkt;
+  dmu_sequence_item dmu_reset_pkt;
+
   function new(string name = "base_sequence");
     super.new(name);
     `uvm_info("BASE_SEQ", "Inside Constructor!", UVM_HIGH);
@@ -18,12 +20,21 @@ class base_sequence extends uvm_sequence;
   task body();
     `uvm_info("BASE_SEQ", "Inside body task!", UVM_HIGH);
     
-    reset_pkt = alu_sequence_item::type_id::create("reset_pkt");
-    start_item(reset_pkt);
+    alu_reset_pkt = alu_sequence_item::type_id::create("alu_reset_pkt");
+    rf_reset_pkt = alu_sequence_item::type_id::create("rf_reset_pkt");
+    dmu_reset_pkt = alu_sequence_item::type_id::create("dmu_reset_pkt");
+
+    start_item(alu_reset_pkt);
+    start_item(rf_reset_pkt);
+    start_item(dmu_reset_pkt);
     
-    reset_pkt.randomize() with {reset==1;};
+    alu_reset_pkt.randomize() with {reset==1;};
+    rf_reset_pkt.randomize() with {reset==1;};
+    dmu_reset_pkt.randomize() with {reset==1;};
     
-    finish_item(reset_pkt);
+    finish_item(alu_reset_pkt);
+    finish_item(rf_reset_pkt);
+    finish_item(dmu_reset_pkt);
     
     
   endtask: body
