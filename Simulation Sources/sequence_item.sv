@@ -57,6 +57,10 @@ class alu_sequence_item extends uvm_sequence_item;
        [11'h001:11'h3fe] :/4,
        }};
   }
+
+  constraint Shamt_c{
+    Shamt dist {{[0:31] := 1}};
+  }
   
   // Outputs
   logic[WIDTH-1:0] RD;
@@ -82,7 +86,7 @@ class rf_sequence_item extends uvm_sequence_item;
   rand logic rst;
   rand logic[4:0] RS1, RS2, RD;
   
-  // Default Constraints
+  // Register Constraints across all 32 possible registers
   constraint RS1_c{RS1 inside {[1:31]};}
   constraint RS2_c{RS2 inside {[1:31]};}
   constraint RD_c {RD inside {[1:31]};}
@@ -101,21 +105,22 @@ class dmu_sequence_item extends uvm_sequence_item;
 	
   `uvm_object_utils(dmu_sequence_item)
   
+  parameter WIDTH = 32;
+
   // Instantiations
   
   // Inputs
-  rand logic reset;
-  rand logic[7:0] a, b;
-  rand logic[3:0] op_code;
+  rand logic rst;
+  rand logic read_en, write_en;
+  rand logic[WIDTH-1:0] addr;
   
-  // Default Constraints
-  constraint input1_c{a inside {[10:20]};}
-  constraint input2_c{b inside {[1:10]};}
-  constraint op_code_c{op_code inside {[0:3]};}
+  // Address contraints to 128 possible memory blocks
+  constraint addr_c{
+    addr inside {[0:127]};
+  }
   
   // Outputs
-  logic[7:0] result;
-  bit carryout;
+  logic[WIDTH-1:0] out_data;
   
   
   function new(string name = "dmu_sequence_item");

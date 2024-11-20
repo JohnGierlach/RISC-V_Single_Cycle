@@ -90,7 +90,8 @@ class r_i_type_alu_sequence extends base_sequence;
 	
   `uvm_object_utils(r_i_type_alu_sequence)
   
-  alu_sequence_item item;
+  alu_sequence_item alu_item;
+  rf_sequence_item rf_item;
   
   function new(string name = "r_i_type_alu_sequence");
     super.new(name);
@@ -100,13 +101,28 @@ class r_i_type_alu_sequence extends base_sequence;
   task body();
     `uvm_info("TEST_SEQ", "Inside body task!", UVM_HIGH);
     
-    item = alu_sequence_item::type_id::create("item");
-    start_item(item);
+    alu_item = alu_sequence_item::type_id::create("alu_item");
+    rf_item = rf_sequence_item::type_id::create("alu_item");
+
+    start_item(alu_item);
+    start_item(rf_item);
     
-    item.randomize() with {reset==0;};
+    rf_item.randomize() with 
+    {
+      rst == 0;
+      write_en == 1;
+    };
+
+    alu_item.randomize() with 
+    {
+      rst == 0;
+
+      // No PC or Shamt used during init registers sequence
+      pc == 0;
+    };
     
-    finish_item(item);
-    
+    finish_item(alu_item);
+    finish_item(rf_item);
     
   endtask: body
 	
@@ -120,7 +136,7 @@ class write_sequence extends base_sequence;
 	
   `uvm_object_utils(write_sequence)
   
-  alu_sequence_item item;
+  dmu_sequence_item dmu_item;
   
   function new(string name = "write_sequence");
     super.new(name);
@@ -130,12 +146,16 @@ class write_sequence extends base_sequence;
   task body();
     `uvm_info("TEST_SEQ", "Inside body task!", UVM_HIGH);
     
-    item = alu_sequence_item::type_id::create("item");
-    start_item(item);
+    dmu_item = dmu_sequence_item::type_id::create("dmu_item");
+    start_item(dmu_item);
     
-    item.randomize() with {reset==0;};
+    dmu_item.randomize() with {
+      reset == 0;
+      read_en == 0;
+      write_en == 1;
+    };
     
-    finish_item(item);
+    finish_item(dmu_item);
     
     
   endtask: body
@@ -150,7 +170,7 @@ class read_sequence extends base_sequence;
 	
   `uvm_object_utils(read_sequence)
   
-  alu_sequence_item item;
+  dmu_sequence_item dmu_item;
   
   function new(string name = "read_sequence");
     super.new(name);
@@ -160,12 +180,16 @@ class read_sequence extends base_sequence;
   task body();
     `uvm_info("TEST_SEQ", "Inside body task!", UVM_HIGH);
     
-    item = alu_sequence_item::type_id::create("item");
-    start_item(item);
+    dmu_item = dmu_sequence_item::type_id::create("dmu_item");
+    start_item(dmu_item);
     
-    item.randomize() with {reset==0;};
+    dmu_item.randomize() with {
+      reset == 0;
+      read_en == 1;
+      write_en == 0;
+    };
     
-    finish_item(item);
+    finish_item(dmu_item);
     
     
   endtask: body
