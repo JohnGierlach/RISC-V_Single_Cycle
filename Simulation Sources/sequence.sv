@@ -58,7 +58,9 @@ class init_regs_sequence extends base_sequence;
     {
       rst == 0;
       RD == RS1;
-      write_en == 1;
+
+      // In reg file, write_en is active low
+      write_en == 0;
     };
 
     alu_item.randomize() with 
@@ -110,7 +112,9 @@ class r_i_type_alu_sequence extends base_sequence;
     rf_item.randomize() with 
     {
       rst == 0;
-      write_en == 1;
+
+      // In reg file, write_en is active low
+      write_en == 0;
     };
 
     alu_item.randomize() with 
@@ -137,6 +141,8 @@ class write_sequence extends base_sequence;
   `uvm_object_utils(write_sequence)
   
   dmu_sequence_item dmu_item;
+  rf_sequence_item rf_item;
+  alu_sequence_item alu_item;
   
   function new(string name = "write_sequence");
     super.new(name);
@@ -147,15 +153,36 @@ class write_sequence extends base_sequence;
     `uvm_info("TEST_SEQ", "Inside body task!", UVM_HIGH);
     
     dmu_item = dmu_sequence_item::type_id::create("dmu_item");
+    rf_item = rf_sequence_item::type_id::create("rf_item");
+    alu_item = alu_sequence_item::type_id::create("alu_item");
     start_item(dmu_item);
+    start_item(rf_item);
+    start_item(alu_item);
     
+    alu_item.randomize() with 
+    {
+      rst == 0;
+
+      // Sets the opcode to SW
+      opcode == 7'b0100011;
+      Imm_reg inside {[1:128]};
+    };
+
+    
+    rf_item.randomize() with {
+      rst == 0;
+      RS1 == 0;
+    };
+
     dmu_item.randomize() with {
-      reset == 0;
+      rst == 0;
       read_en == 0;
       write_en == 1;
     };
     
     finish_item(dmu_item);
+    finish_item(rf_item);
+    finish_item(alu_item);
     
     
   endtask: body
@@ -171,6 +198,8 @@ class read_sequence extends base_sequence;
   `uvm_object_utils(read_sequence)
   
   dmu_sequence_item dmu_item;
+  rf_sequence_item rf_item;
+  alu_sequence_item alu_item;
   
   function new(string name = "read_sequence");
     super.new(name);
@@ -181,15 +210,40 @@ class read_sequence extends base_sequence;
     `uvm_info("TEST_SEQ", "Inside body task!", UVM_HIGH);
     
     dmu_item = dmu_sequence_item::type_id::create("dmu_item");
+    rf_item = rf_sequence_item::type_id::create("rf_item");
+    alu_item = alu_sequence_item::type_id::create("alu_item");
     start_item(dmu_item);
+    start_item(rf_item);
+    start_item(alu_item);
     
+    alu_item.randomize() with 
+    {
+      rst == 0;
+
+      // Sets the opcode to LW
+      opcode == 7'b0000011;
+
+      // further contrain Imm_reg to access only access possible memory blocks
+      Imm_reg inside {[1:128]};
+    };
+
+    rf_item.randomize() with {
+      rst == 0;
+      RS1 == 0;
+
+      // In reg file, write_en is active low
+      write_en == 0;
+    };
+
     dmu_item.randomize() with {
-      reset == 0;
+      rst == 0;
       read_en == 1;
       write_en == 0;
     };
     
     finish_item(dmu_item);
+    finish_item(rf_item);
+    finish_item(alu_item);
     
     
   endtask: body

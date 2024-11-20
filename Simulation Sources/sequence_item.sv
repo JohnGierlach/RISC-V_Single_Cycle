@@ -109,15 +109,10 @@ class dmu_sequence_item extends uvm_sequence_item;
 
   // Instantiations
   
-  // Inputs
+  // Inputs | write_data comes from register file, addr comes from ALU
   rand logic rst;
   rand logic read_en, write_en;
-  rand logic[WIDTH-1:0] addr;
   
-  // Address contraints to 128 possible memory blocks
-  constraint addr_c{
-    addr inside {[0:127]};
-  }
   
   // Outputs
   logic[WIDTH-1:0] out_data;
