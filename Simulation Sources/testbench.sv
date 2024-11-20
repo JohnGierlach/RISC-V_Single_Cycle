@@ -92,7 +92,7 @@ module top;
   end
   
   initial begin
-  	#5000;
+  	#50000;
     $display("Sorry, ran out of clock cycles!");
     $finish;
   end

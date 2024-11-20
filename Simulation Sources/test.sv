@@ -50,18 +50,39 @@ class data_tx_test extends uvm_test;
 
     phase.raise_objection(this);
 
-    //reset_seq
-    reset_seq = alu_base_sequence::type_id::create("reset_seq");
+    // Reset sequence, reset ALU, DMU, and RF
+    reset_seq = base_sequence::type_id::create("reset_seq");
     reset_seq.start(env.agnt.seqr);
     #10;
 
-    repeat(100) begin
-      //test_seq
-      test_seq = alu_test_sequence::type_id::create("test_seq");
-      test_seq.start(env.agnt.seqr);
+    // Initilize 32 registers with values
+    repeat(32) begin
+      init_regs_seq = init_regs_sequence::type_id::create("init_regs_seq");
+      init_regs_seq.start(env.agnt.seqr);
+      #10;
+    end
+
+    // Perform R-Type and I-Type ALU test to write to registers
+    repeat(100)begin
+      r_i_type_alu_seq = r_i_type_alu_sequence::type_id::create("r_i_type_alu_seq");
+      r_i_type_alu_seq.start(env.agnt.seqr);
+      #10;
+    end
+
+    // Write data from register file to DMU
+    repeat(1000)begin
+      wr_seq = write_sequence::type_id::create("wr_seq");
+      wr_seq.start(env.agnt.seqr);
       #10;
     end
     
+    // Write data from register file to DMU
+    repeat(1000)begin
+      rd_seq = write_sequence::type_id::create("rd_seq");
+      rd_seq.start(env.agnt.seqr);
+      #10;
+    end
+
     phase.drop_objection(this);
 
   endtask: run_phase
