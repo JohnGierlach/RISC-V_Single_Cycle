@@ -31,8 +31,8 @@ module top;
   logic clock;
   
   alu_interface alu_intf(.clock(clock));
-  alu_interface rf_intf(.clock(clock));
-  alu_interface dmu_intf(.clock(clock));
+  rf_interface rf_intf(.clock(clock));
+  dmu_interface dmu_intf(.clock(clock));
   
   alu_top dut0(
     .clk(alu_intf.clk),
