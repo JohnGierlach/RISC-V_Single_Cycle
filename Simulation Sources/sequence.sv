@@ -28,9 +28,9 @@ class base_sequence extends uvm_sequence;
     start_item(rf_reset_pkt);
     start_item(dmu_reset_pkt);
     
-    alu_reset_pkt.randomize() with {reset==1;};
-    rf_reset_pkt.randomize() with {reset==1;};
-    dmu_reset_pkt.randomize() with {reset==1;};
+    alu_reset_pkt.randomize() with {rst==1;};
+    rf_reset_pkt.randomize() with {rst==1;};
+    dmu_reset_pkt.randomize() with {rst==1;};
     
     finish_item(alu_reset_pkt);
     finish_item(rf_reset_pkt);
