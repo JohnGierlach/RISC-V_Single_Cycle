@@ -1,10 +1,10 @@
-class alu_driver extends uvm_driver#(alu_sequence_item);
-  `uvm_component_utils(alu_driver)
+class data_tx_driver extends uvm_driver#(alu_sequence_item);
+  `uvm_component_utils(data_tx_driver)
    
   virtual alu_interface vif;
   alu_sequence_item item;
   
-  function new(string name = "alu_driver", uvm_component parent);
+  function new(string name = "data_tx_driver", uvm_component parent);
     super.new(name, parent);
     `uvm_info("DRIVER_CLASS", "Inside Constructor!", UVM_HIGH)
   endfunction: new
@@ -58,4 +58,4 @@ class alu_driver extends uvm_driver#(alu_sequence_item);
     end
   endtask: drive
   
-endclass: alu_driver
+endclass: data_tx_driver

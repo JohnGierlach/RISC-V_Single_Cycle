@@ -1,12 +1,12 @@
-class alu_monitor extends uvm_monitor;
-  `uvm_component_utils(alu_monitor)
+class data_tx_monitor extends uvm_monitor;
+  `uvm_component_utils(data_tx_monitor)
   
   virtual alu_interface vif;
   alu_sequence_item item;
   uvm_analysis_port #(alu_sequence_item) monitor_port;
   
   
-  function new(string name = "alu_monitor", uvm_component parent);
+  function new(string name = "data_tx_monitor", uvm_component parent);
     super.new(name, parent);
     `uvm_info("MONITOR_CLASS", "Inside Constructor!", UVM_HIGH)
     
@@ -64,4 +64,4 @@ class alu_monitor extends uvm_monitor;
     
     
   endtask: run_phase
-endclass: alu_monitor
+endclass: data_tx_monitor

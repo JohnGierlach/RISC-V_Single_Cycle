@@ -1,7 +1,7 @@
-class alu_sequencer extends uvm_sequencer#(alu_sequence_item);
-  `uvm_component_utils(alu_sequencer)
+class data_tx_sequencer extends uvm_sequencer#(alu_sequence_item);
+  `uvm_component_utils(data_tx_sequencer)
   
-  function new(string name = "alu_sequencer", uvm_component parent);
+  function new(string name = "data_tx_sequencer", uvm_component parent);
     super.new(name, parent);
     `uvm_info("SEQUENCER_CLASS", "Inside Constructor!", UVM_HIGH)
   endfunction: new
@@ -22,4 +22,4 @@ class alu_sequencer extends uvm_sequencer#(alu_sequence_item);
     `uvm_info("SEQUENCER_CLASS", "Connect Phase!", UVM_HIGH)
   endfunction: connect_phase
   
-endclass: alu_sequencer
+endclass: data_tx_sequencer

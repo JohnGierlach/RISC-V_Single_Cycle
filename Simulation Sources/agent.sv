@@ -1,9 +1,9 @@
 class data_tx_agent extends uvm_agent;
   `uvm_component_utils(data_tx_agent)
   
-   alu_driver drv;
-   alu_monitor mon;
-   alu_sequencer seqr;
+   data_tx_driver drv;
+   data_tx_monitor mon;
+   data_tx_sequencer seqr;
   
   function new(string name = "data_tx_agent", uvm_component parent);
     super.new(name, parent);
@@ -17,9 +17,9 @@ class data_tx_agent extends uvm_agent;
     super.build_phase(phase);
     `uvm_info("AGENT_CLASS", "Build Phase!", UVM_HIGH)
     
-    drv = alu_driver::type_id::create("drv", this);
-    mon = alu_monitor::type_id::create("mon", this);
-    seqr = alu_sequencer::type_id::create("seqr", this);
+    drv = data_tx_driver::type_id::create("drv", this);
+    mon = data_tx_monitor::type_id::create("mon", this);
+    seqr = data_tx_sequencer::type_id::create("seqr", this);
     
   endfunction: build_phase
 
