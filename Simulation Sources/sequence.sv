@@ -60,7 +60,7 @@ class init_regs_sequence extends base_sequence;
     `uvm_info("TEST_SEQ", "Inside body task!", UVM_HIGH);
     
     alu_item = alu_sequence_item::type_id::create("alu_item");
-    rf_item = rf_sequence_item::type_id::create("alu_item");
+    rf_item = rf_sequence_item::type_id::create("rf_item");
 
     start_item(alu_item);
     start_item(rf_item);

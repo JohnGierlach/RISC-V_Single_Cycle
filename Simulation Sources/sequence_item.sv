@@ -29,8 +29,8 @@ class alu_sequence_item extends uvm_sequence_item;
   // Equal 50% chance to either be R-Type or I-Type instruction
   constraint opcode_c{
     opcode dist {
-      7'h33 := 1;
-      7'h13 := 1;
+      7'h33 := 1; // R-Type
+      7'h13 := 1; // I-Type
     };
   }
   
@@ -40,13 +40,16 @@ class alu_sequence_item extends uvm_sequence_item;
   }
 
   // When ADD/ADDI or SRL/SRLI have a 50% chance to do SUB or SRA respectively
-  constraint Funct3_c{  
+  constraint Funct7_c{  
     if (Funct3 == 3'h000 || Funct3 == 3'h101) {
       Funct7 dist {
         7'h00 := 1, // 0
         7'h20 := 1  // 0x20
       };
     }
+
+    else
+      Funct7 == 0;
   }
 
   // Set Imm_reg to 0-2047 with more chances to hit 40% chance to test values between 0 and 2047

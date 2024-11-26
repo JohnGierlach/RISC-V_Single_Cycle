@@ -76,9 +76,9 @@ class data_tx_test extends uvm_test;
       #10;
     end
     
-    // Write data from register file to DMU
+    // Read data from register file to DMU
     repeat(1000)begin
-      rd_seq = write_sequence::type_id::create("rd_seq");
+      rd_seq = read_sequence::type_id::create("rd_seq");
       rd_seq.start(env.agnt.seqr);
       #10;
     end
