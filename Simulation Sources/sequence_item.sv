@@ -87,6 +87,7 @@ class rf_sequence_item extends uvm_sequence_item;
   
   // Inputs | RD_Data input comes from the ALU or DMU
   rand logic rst;
+  rand logic write_en;
   rand logic[4:0] RS1, RS2, RD;
   
   // Register Constraints across all 32 possible registers

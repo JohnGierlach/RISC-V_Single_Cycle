@@ -28,6 +28,9 @@ class data_tx_env extends uvm_env;
     super.connect_phase(phase);
     `uvm_info("ENV_CLASS", "Connect Phase!", UVM_HIGH)
     
+
+    // TODO : Create monitor port connection for rf, alu, and dmu
+    // TODO : scb.alu_scoreboard_port, scb.rf_scoreboard_port, scb.dmu_scoreboard_port
     agnt.mon.monitor_port.connect(scb.scoreboard_port);
     
   endfunction: connect_phase
