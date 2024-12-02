@@ -87,7 +87,7 @@ class risc_v_scoreboard extends uvm_scoreboard;
             SLL:    alu_expected_RD = rf_curr_trans.RS1_data << rf_curr_trans.RS2_data;
             // Potential Edge Case
             SLT:    alu_expected_RD = (rf_curr_trans.RS1_data[WIDTH-1] ^ rf_curr_trans.RS2_data[WIDTH-1]) ? rf_curr_trans.RS1_data[WIDTH-1] : 
-                    (rf_curr_trans.RS1_data - rf_curr_trans.RS2_data)[WIDTH-1];
+            {(rf_curr_trans.RS1_data - rf_curr_trans.RS2_data)}[WIDTH-1];
             SLTU:   alu_expected_RD = (rf_curr_trans.RS1_data < rf_curr_trans.RS2_data) ? 1'b1 : 1'b0;
             XOR:    alu_expected_RD = rf_curr_trans.RS1_data ^ rf_curr_trans.RS2_data;
             SRL:    alu_expected_RD = (alu_curr_trans.Funct7 == 7'h20) ? (rf_curr_trans.RS1_data >>> rf_curr_trans.RS2_data) : (rf_curr_trans.RS1_data >> rf_curr_trans.RS2_data);
@@ -141,31 +141,31 @@ class risc_v_scoreboard extends uvm_scoreboard;
 
     // ALU DUT
     if (alu_curr_trans.rst) begin
-        `uvm_info("RESET, do not compare", UVM_LOW)
+      `uvm_info("RESET", $sformatf("do not compare"), UVM_LOW)
         PASS(); // May want to remove pass
     end
     else if (alu_curr_trans.RD != alu_expected_RD) begin
-        `uvm_info("COMPARE", $sformatf("Transaction failed in ALU DUT! ACT=%d, EXP=%d", alu_curr_trans.RD, alu_expected_RD))
+        `uvm_error("COMPARE", $sformatf("Transaction failed in ALU DUT! ACT=%d, EXP=%d", alu_curr_trans.RD, alu_expected_RD))
         FAIL();
     end
     else if (alu_curr_trans.Mem_addr != alu_expected_mem_addr) begin
-        `uvm_info("COMPARE", $sformatf("Transaction failed in ALU DUT! ACT=%d, EXP=%d", alu_curr_trans.Mem_addr, alu_expected_mem_addr))
+        `uvm_error("COMPARE", $sformatf("Transaction failed in ALU DUT! ACT=%d, EXP=%d", alu_curr_trans.Mem_addr, alu_expected_mem_addr))
         FAIL();
     end
 
     // Register File DUT
     else if (rf_curr_trans.RS1_data != rf_expected_RS1_data) begin
-         `uvm_info("COMPARE", $sformatf("Transaction failed in RF DUT! ACT=%d, EXP=%d", rf_curr_trans.RS1_data, rf_expected_RS1_data))
+         `uvm_error("COMPARE", $sformatf("Transaction failed in RF DUT! ACT=%d, EXP=%d", rf_curr_trans.RS1_data, rf_expected_RS1_data))
         FAIL();
     end
     else if (rf_curr_trans.RS2_data != rf_expected_RS2_data) begin
-         `uvm_info("COMPARE", $sformatf("Transaction failed in RF DUT! ACT=%d, EXP=%d", rf_curr_trans.RS2_data, rf_expected_RS2_data))
+         `uvm_error("COMPARE", $sformatf("Transaction failed in RF DUT! ACT=%d, EXP=%d", rf_curr_trans.RS2_data, rf_expected_RS2_data))
         FAIL();
     end
 
     // Data Memory DUT
     else if (dmu_curr_trans.out_data != dmu_expected_out_data) begin
-         `uvm_info("COMPARE", $sformatf("Transaction failed in DMU DUT! ACT=%d, EXP=%d", dmu_curr_trans.out_data, dmu_expected_out_data))
+         `uvm_error("COMPARE", $sformatf("Transaction failed in DMU DUT! ACT=%d, EXP=%d", dmu_curr_trans.out_data, dmu_expected_out_data))
         FAIL();
     end
     else begin
