@@ -31,7 +31,9 @@ class data_tx_env extends uvm_env;
 
     // TODO : Create monitor port connection for rf, alu, and dmu
     // TODO : scb.alu_scoreboard_port, scb.rf_scoreboard_port, scb.dmu_scoreboard_port
-    agnt.mon.monitor_port.connect(scb.scoreboard_port);
+    agnt.mon.alu_monitor_port.connect(scb.alu_scoreboard_port);
+    agnt.mon.rf_monitor_port.connect(scb.rf_scoreboard_port);
+    agnt.mon.dmu_monitor_port.connect(scb.dmu_scoreboard_port);
     
   endfunction: connect_phase
   

@@ -1,7 +1,13 @@
 class risc_v_scoreboard extends uvm_scoreboard;
     `uvm_component_utils(risc_v_scoreboard)
-
-    uvm_analysis_imp #(alu_sequence_item, dmu_sequence_item, rf_sequence_item, risc_v_scoreboard) scoreboard_port;
+    `uvm_analysis_imp_decl(_alu_scoreboard_port)	
+    `uvm_analysis_imp_decl(_rf_scoreboard_port)	
+    `uvm_analysis_imp_decl(_dmu_scoreboard_port)	
+  
+  
+    uvm_analysis_imp_alu_scoreboard_port #(alu_sequence_item, risc_v_scoreboard) alu_scoreboard_port;
+    uvm_analysis_imp_rf_scoreboard_port #(rf_sequence_item, risc_v_scoreboard) rf_scoreboard_port;
+    uvm_analysis_imp_dmu_scoreboard_port #(dmu_sequence_item, risc_v_scoreboard) dmu_scoreboard_port;
     alu_sequence_item alu_transactions[$];
     rf_sequence_item rf_transactions[$];
     dmu_sequence_item dmu_transactions[$];
@@ -31,17 +37,27 @@ class risc_v_scoreboard extends uvm_scoreboard;
         super.build_phase(phase);
         `uvm_info("SCB_CLASS", "Build Phase!", UVM_HIGH)
    
-        scoreboard_port = new("scoreboard_port", this);
+        alu_scoreboard_port = new("alu_scoreboard_port", this);
+        rf_scoreboard_port = new("rf_scoreboard_port", this);
+        dmu_scoreboard_port = new("dmu_scoreboard_port", this);
   endfunction: build_phase
     
     // Write method
-    function void write(alu_sequence_item alu_item, rf_sequence_item rf_item, dmu_sequence_item dmu_item);
-    // `uvm_info("write", $sformatf("Data received = 0x%0h", data), UVM_MEDIUM)
-
+    function void write_alu_scoreboard_port(alu_sequence_item alu_item);
+    //`uvm_info("write", $sformatf("Data received = 0x%0h", data), UVM_MEDIUM)
         alu_transactions.push_back(alu_item);
-        dmu_transactions.push_back(dmu_item);
+    endfunction: write_alu_scoreboard_port
+  
+    function void write_rf_scoreboard_port(rf_sequence_item rf_item);
+    //`uvm_info("write", $sformatf("Data received = 0x%0h", data), UVM_MEDIUM)
         rf_transactions.push_back(rf_item);
-    endfunction: write 
+    endfunction: write_rf_scoreboard_port
+  
+    function void write_dmu_scoreboard_port(dmu_sequence_item dmu_item);
+    //`uvm_info("write", $sformatf("Data received = 0x%0h", data), UVM_MEDIUM)
+
+        dmu_transactions.push_back(dmu_item);
+    endfunction: write_dmu_scoreboard_port
 
 //--------------------------------------------------------›
   //Run Phase
@@ -57,7 +73,7 @@ class risc_v_scoreboard extends uvm_scoreboard;
     forever begin
       alu_sequence_item alu_curr_trans;
       rf_sequence_item rf_curr_trans;
-      alu_sequence_item curr_trans;
+      dmu_sequence_item dmu_curr_trans;
       wait((alu_transactions.size() != 0));
 
       alu_curr_trans = alu_transactions.pop_front();
@@ -125,15 +141,15 @@ class risc_v_scoreboard extends uvm_scoreboard;
     rf_expected_RS2_data = reg_file_model[rf_curr_trans.RS2];
 
     if (!rf_curr_trans.write_en)
-        reg_file_model = rf_curr_trans.RD_data;
+        reg_file_model = (dmu_curr_trans.read_en) ? dmu_curr_trans.out_data : alu_curr_trans.RD;
 
     // // -------------------------- DMU Model --------------------------
     if (dmu_curr_trans.read_en) begin
-        dmu_expected_out_data = mem_storage[dmu_curr_trans.addr];
+        dmu_expected_out_data = mem_storage[alu_curr_trans.Mem_addr];
     end 
     else if (dmu_curr_trans.write_en) begin
-        dmu_expected_out_data = '0;
-        mem_storage[dmu_curr_trans.addr] = dmu_curr_trans.write_data;
+        dmu_expected_out_data = 0;
+        mem_storage[alu_curr_trans.Mem_addr] = rf_curr_trans.RS2_data;
     end
     
 

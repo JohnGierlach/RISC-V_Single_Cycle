@@ -20,6 +20,9 @@ import uvm_pkg::*;
 `include "risc-v-scoreboard.sv"
 `include "env.sv"
 `include "test.sv"
+`include "alu_top.v"
+`include "dmu_engine.v"
+`include "register_select.v"
 
 
 module top;

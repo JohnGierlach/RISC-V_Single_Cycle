@@ -9,7 +9,9 @@ class data_tx_monitor extends uvm_monitor;
   rf_sequence_item rf_item;
   dmu_sequence_item dmu_item;
 
-  uvm_analysis_port #(alu_sequence_item, rf_sequence_item, dmu_sequence_item) monitor_port;
+  uvm_analysis_port #(alu_sequence_item) alu_monitor_port;
+  uvm_analysis_port #(rf_sequence_item) rf_monitor_port;
+  uvm_analysis_port #(dmu_sequence_item) dmu_monitor_port;
   
   function new(string name = "data_tx_monitor", uvm_component parent);
     super.new(name, parent);
@@ -25,7 +27,9 @@ class data_tx_monitor extends uvm_monitor;
     super.build_phase(phase);
     `uvm_info("MONITOR_CLASS", "Build Phase!", UVM_HIGH)
 
-    monitor_port = new("monitor_port", this);
+    alu_monitor_port = new("alu_monitor_port", this);
+    rf_monitor_port = new("rf_monitor_port", this);
+    dmu_monitor_port = new("dmu_monitor_port", this);
     
     if(!(uvm_config_db#(virtual alu_interface)::get(this, "*",  "vif_alu", vif_alu)))begin
       `uvm_error("MONTIOR_CLASS", "Failed to get VIF from config DB!");
@@ -113,7 +117,9 @@ class data_tx_monitor extends uvm_monitor;
       end
 
       // Send item to scoreboard
-      monitor_port.write(alu_item, rf_item, dmu_item);
+      alu_monitor_port.write(alu_item);
+      rf_monitor_port.write(rf_item);
+      dmu_monitor_port.write(dmu_item);
     end
     
   endtask: run_phase
