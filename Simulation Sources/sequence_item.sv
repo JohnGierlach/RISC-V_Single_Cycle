@@ -62,7 +62,7 @@ class alu_sequence_item extends uvm_sequence_item;
   }
 
   constraint Shamt_c{
-    Shamt dist {{[0:31] := 1}};
+    Shamt dist {[0:31] := 1};
   }
   
   // Outputs
