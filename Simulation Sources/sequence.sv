@@ -84,8 +84,8 @@ class init_regs_sequence extends base_sequence;
 
       // Sets operation as ADDI 
       opcode == 7'h13;
-      funct3 == 3'h0;
-      funct7 == 7'h00;
+      Funct3 == 3'h0;
+      Funct7 == 7'h00;
     };
     
     finish_item(alu_item);

@@ -9,7 +9,7 @@ class data_tx_monitor extends uvm_monitor;
   rf_sequence_item rf_item;
   dmu_sequence_item dmu_item;
 
-  uvm_analysis_port #(alu_item, rf_item, dmu_item) monitor_port;
+  uvm_analysis_port #(alu_sequence_item, rf_sequence_item, dmu_sequence_item) monitor_port;
   
   function new(string name = "data_tx_monitor", uvm_component parent);
     super.new(name, parent);
