@@ -1,14 +1,14 @@
 class data_tx_driver extends uvm_driver#(alu_sequence_item);
   `uvm_component_utils(data_tx_driver)
    
-  virtual alu_interface vif;
-  alu_sequence_item item;
+  virtual alu_interface vif_alu;
+  alu_sequence_item alu_item;
 
-  // TODO : Create virtual interface for rf, alu, and dmu:
-  // vif_rf, vif_alu, vif_dmu
+  virtual rf_interface vif_rf;
+  rf_sequence_item rf_item;
 
-  // TODO : Create sequence items for rf, alu and dmu:
-  // rf_item, alu_item, dmu_item
+  virtual dmu_interface vif_dmu;
+  dmu_sequence_item dmu_item;
   
   function new(string name = "data_tx_driver", uvm_component parent);
     super.new(name, parent);
@@ -22,12 +22,18 @@ class data_tx_driver extends uvm_driver#(alu_sequence_item);
     super.build_phase(phase);
     `uvm_info("DRIVER_CLASS", "Build Phase!", UVM_HIGH)
     
-
-    // TODO : Include a pass/fail condition for rf, alu and dmu virtual inteface connectioj
-    if(!(uvm_config_db#(virtual alu_interface)::get(this, "*",  "vif", vif)))begin
+    if(!(uvm_config_db#(virtual alu_interface)::get(this, "*",  "vif_alu", vif_alu)))begin
       `uvm_error("DRIVER_CLASS", "Failed to get VIF from config DB!");
     end
-      
+
+    if(!(uvm_config_db#(virtual rf_interface)::get(this, "*",  "vif_rf", vif_rf)))begin
+      `uvm_error("DRIVER_CLASS", "Failed to get VIF from config DB!");
+    end
+
+    if(!(uvm_config_db#(virtual dmu_interface)::get(this, "*",  "vif_dmu", vif_dmu)))begin
+      `uvm_error("DRIVER_CLASS", "Failed to get VIF from config DB!");
+    end
+
   endfunction: build_phase
 
   //--------------------------------------------------------
@@ -48,43 +54,63 @@ class data_tx_driver extends uvm_driver#(alu_sequence_item);
     
     forever begin
 
-      // TODO : Drive the current sequence item for rf, alu, and dmu
-      // Follow the logic below
+      alu_item = alu_sequence_item::type_id::create("alu_item");
+      seq_item_port.get_next_item(alu_item);
+      drive(alu_item);
+      seq_item_port.item_done();
 
-      item = alu_sequence_item::type_id::create("item");
-      seq_item_port.get_next_item(item);
-      drive(item);
+      rf_item = rf_sequence_item::type_id::create("rf_item");
+      seq_item_port.get_next_item(rf_item);
+      drive(rf_item);
+      seq_item_port.item_done();
+
+      dmu_item = dmu_sequence_item::type_id::create("dmu_item");
+      seq_item_port.get_next_item(dmu_item);
+      drive(dmu_item);
       seq_item_port.item_done();
                                                
     end
-    
-    
+            
   endtask: run_phase
   
-
-
-  // This driver task needs to be changed based on how th alu_top.v module is configured.
-  //
-  // Inputs: clk, rst, pc, RS1, RS2, Funct3, Funct7, opcode, Imm_reg, Shamt
-  // Outputs: RD, Mem_addr
-  //
-  // RS1 & RS2 come from the register_select.v module (register file)
-  // RS1 & RS2 must be driven by the register field sequence items: RS1_Data & RS2_Data
-  task drive(alu_sequence_item item);
-    @(posedge vif.clock)begin
-      vif.reset <= item.reset;
-      vif.a <= item.a;
-      vif.b <= item.b;
-      vif.op_code <= item.op_code;
+  task alu_drive(alu_sequence_item alu_item);
+    @(posedge vif_alu.clk)begin
+      vif_alu.rst <= alu_item.rst;
+      vif_alu.pc <= alu_item.pc;
+      vif_alu.RS1 <= vif_rf.RS1_Data;
+      vif_alu.RS2 <= vif_rf.RS2_Data;
+      vif_alu.Funct3 <= alu_item.Funct3;
+      vif_alu.Funct7 <= alu_item.Funct7;
+      vif_alu.op_code <= alu_item.op_code;
+      vif_alu.Imm_reg <= alu_item.Imm_reg;
+      vif_alu.Shamt <= alu_item.Shamt;
+      vif_alu.Mem_addr <= alu_item.Mem_addr;
+      vif_alu.RD <= alu_item.RD;
     end
-  endtask: drive
+  endtask: alu_drive
 
-  // TODO : Need to create a rf_drive task for register file
-  // Find inputs & outputs either from internal sequence item or external sequence item
-  // Ex for external seq_item: vif_rf.RD_Data <= (isDMUOutput) ? vif_dmu.out_data : vif_alu.RD
+  task rf_drive(rf_sequence_item rf_item);
+    @(posedge vif_rf.clk)begin
+      vif_rf.RD_Data <= (isDMUOutput) ? vif_dmu.out_data : vif_alu.RD;
+      vif_rf.rst <= rf_item.rst;
+      vif_rf.write_en <= rf_item.write_en;
+      vif_rf.RS1 <= rf_item.RS1;
+      vif_rf.RS2 <= rf_item.RS2;
+      vif_rf.RD <= rf_item.RD;
+      vif_rf.RS1_data <= rf_item.RS1_data;
+      vif_rf.RS2_data <= rf_item.RS2_data;
+    end
+  endtask: rf_drive
 
-
-  // TODO : Need to create a dmu_drive task for DMU
-  // Find inputs & outputs either from internal sequence item or external sequence item
+  task dmu_drive(dmu_sequence_item dmu_item);
+    @(posedge vif_dmu.clk)begin
+      vif_dmu.write_data <= vif_rf.RS2_Data;
+      vif_dmu.addr <= vif_alu.Mem_addr;
+      vif_dmu.rst <= dmu_item.rst;
+      vif_dmu.read_en <= dmu_item.read_en;
+      vif_dmu.write_en <= dmu_item.write_en;
+      vif_dmu.out_data <= dmu_item.out_data;
+    end
+  endtask: dmu_drive
   
 endclass: data_tx_driver
