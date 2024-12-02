@@ -56,17 +56,17 @@ class data_tx_driver extends uvm_driver#(alu_sequence_item);
 
       alu_item = alu_sequence_item::type_id::create("alu_item");
       seq_item_port.get_next_item(alu_item);
-      drive(alu_item);
+      alu_drive(alu_item);
       seq_item_port.item_done();
 
       rf_item = rf_sequence_item::type_id::create("rf_item");
       seq_item_port.get_next_item(rf_item);
-      drive(rf_item);
+      rf_drive(rf_item);
       seq_item_port.item_done();
 
       dmu_item = dmu_sequence_item::type_id::create("dmu_item");
       seq_item_port.get_next_item(dmu_item);
-      drive(dmu_item);
+      dmu_drive(dmu_item);
       seq_item_port.item_done();
                                                
     end
@@ -77,11 +77,11 @@ class data_tx_driver extends uvm_driver#(alu_sequence_item);
     @(posedge vif_alu.clk)begin
       vif_alu.rst <= alu_item.rst;
       vif_alu.pc <= alu_item.pc;
-      vif_alu.RS1 <= vif_rf.RS1_Data;
-      vif_alu.RS2 <= vif_rf.RS2_Data;
+      vif_alu.RS1 <= vif_rf.RS1_data;
+      vif_alu.RS2 <= vif_rf.RS2_data;
       vif_alu.Funct3 <= alu_item.Funct3;
       vif_alu.Funct7 <= alu_item.Funct7;
-      vif_alu.op_code <= alu_item.op_code;
+      vif_alu.opcode <= alu_item.opcode;
       vif_alu.Imm_reg <= alu_item.Imm_reg;
       vif_alu.Shamt <= alu_item.Shamt;
       vif_alu.Mem_addr <= alu_item.Mem_addr;
@@ -104,7 +104,7 @@ class data_tx_driver extends uvm_driver#(alu_sequence_item);
 
   task dmu_drive(dmu_sequence_item dmu_item);
     @(posedge vif_dmu.clk)begin
-      vif_dmu.write_data <= vif_rf.RS2_Data;
+      vif_dmu.write_data <= vif_rf.RS2_data;
       vif_dmu.addr <= vif_alu.Mem_addr;
       vif_dmu.rst <= dmu_item.rst;
       vif_dmu.read_en <= dmu_item.read_en;

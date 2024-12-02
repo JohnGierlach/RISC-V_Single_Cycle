@@ -73,7 +73,7 @@ class data_tx_monitor extends uvm_monitor;
         alu_item.Funct7 = vif_alu.Funct7;
         alu_item.Imm_reg = vif_alu.Imm_reg;
         alu_item.Shamt = vif_alu.Shamt;
-        alu_item.op_code = vif_alu.op_code;
+        alu_item.opcode = vif_alu.opcode;
       end
      
       // Capturing all outputs for alu interface
