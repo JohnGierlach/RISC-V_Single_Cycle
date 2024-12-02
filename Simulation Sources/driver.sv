@@ -91,7 +91,7 @@ class data_tx_driver extends uvm_driver#(alu_sequence_item);
 
   task rf_drive(rf_sequence_item rf_item);
     @(posedge vif_rf.clk)begin
-      vif_rf.RD_Data <= (isDMUOutput) ? vif_dmu.out_data : vif_alu.RD;
+      vif_rf.RD_data <= (isDMUOutput) ? vif_dmu.out_data : vif_alu.RD;
       vif_rf.rst <= rf_item.rst;
       vif_rf.write_en <= rf_item.write_en;
       vif_rf.RS1 <= rf_item.RS1;
