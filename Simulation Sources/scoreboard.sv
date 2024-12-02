@@ -6,8 +6,7 @@ class alu_scoreboard extends uvm_test;
   uvm_analysis_imp #(alu_sequence_item, alu_scoreboard) scoreboard_port;
   
   alu_sequence_item transactions[$];
-  
-  
+
   //--------------------------------------------------------
   //Constructor
   //--------------------------------------------------------
