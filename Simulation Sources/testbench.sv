@@ -17,7 +17,7 @@ import uvm_pkg::*;
 `include "driver.sv"
 `include "monitor.sv"
 `include "agent.sv"
-`include "scoreboard.sv"
+`include "risc-v-scoreboard.sv"
 `include "env.sv"
 `include "test.sv"
 
@@ -59,7 +59,7 @@ module top;
     .RD_data(rf_intf.RD_data),
     .RS1_data(rf_intf.RS1_data),
     .RS2_data(rf_intf.RS2_data)
-  )
+  );
   
   dmu_engine dut2(
     .clk(dmu_intf.clk),
@@ -69,7 +69,7 @@ module top;
     .write_data(dmu_intf.write_data),
     .addr(dmu_intf.addr),
     .out_data(dmu_intf.out_data)
-  )
+  );
   
   initial begin
     uvm_config_db #(virtual alu_interface)::set(null, "*", "alu_vif", alu_intf);

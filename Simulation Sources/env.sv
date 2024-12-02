@@ -2,7 +2,7 @@ class data_tx_env extends uvm_env;
   `uvm_component_utils(data_tx_env)
   
   data_tx_agent agnt;
-  data_tx_scoreboard scb;
+  risc_v_scoreboard scb;
   
   function new(string name = "data_tx_env", uvm_component parent);
     super.new(name, parent);
@@ -17,7 +17,7 @@ class data_tx_env extends uvm_env;
     `uvm_info("ENV_CLASS", "Build Phase!", UVM_HIGH)
     
     agnt = data_tx_agent::type_id::create("agnt", this);
-    scb = data_tx_scoreboard::type_id::create("scb", this);
+    scb = risc_v_scoreboard::type_id::create("scb", this);
     
   endfunction: build_phase
 
