@@ -8,6 +8,7 @@ class risc_v_scoreboard extends uvm_scoreboard;
     uvm_analysis_imp_alu_scoreboard_port #(alu_sequence_item, risc_v_scoreboard) alu_scoreboard_port;
     uvm_analysis_imp_rf_scoreboard_port #(rf_sequence_item, risc_v_scoreboard) rf_scoreboard_port;
     uvm_analysis_imp_dmu_scoreboard_port #(dmu_sequence_item, risc_v_scoreboard) dmu_scoreboard_port;
+
     alu_sequence_item alu_transactions[$];
     rf_sequence_item rf_transactions[$];
     dmu_sequence_item dmu_transactions[$];

@@ -21,8 +21,8 @@ class base_sequence extends uvm_sequence;
     `uvm_info("BASE_SEQ", "Inside body task!", UVM_HIGH);
     
     alu_reset_pkt = alu_sequence_item::type_id::create("alu_reset_pkt");
-    rf_reset_pkt = alu_sequence_item::type_id::create("rf_reset_pkt");
-    dmu_reset_pkt = alu_sequence_item::type_id::create("dmu_reset_pkt");
+    rf_reset_pkt = rf_sequence_item::type_id::create("rf_reset_pkt");
+    dmu_reset_pkt = dmu_sequence_item::type_id::create("dmu_reset_pkt");
 
     start_item(alu_reset_pkt);
     start_item(rf_reset_pkt);
