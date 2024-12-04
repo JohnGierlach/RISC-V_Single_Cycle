@@ -8,9 +8,6 @@ import uvm_pkg::*;
 //----------------------------------
 //Include Files
 //----------------------------------
-`include "alu_interface.sv"
-`include "dmu_interface.sv"
-`include "rf_interface.sv"
 `include "sequence_item.sv"
 `include "sequence.sv"
 `include "sequencer.sv"
