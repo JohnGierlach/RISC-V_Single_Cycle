@@ -9,6 +9,8 @@ class alu_sequence_item extends uvm_sequence_item;
 
   // Instantiations
   
+  //-------------------------------- ALU Constraints --------------------------------
+
   // Inputs
   rand logic rst;
   rand logic[WIDTH-1:0] pc;
@@ -64,56 +66,33 @@ class alu_sequence_item extends uvm_sequence_item;
   constraint Shamt_c{
     Shamt dist {[0:31] := 1};
   }
-  
   // Outputs
   logic[WIDTH-1:0] RD;
   logic[WIDTH-1:0] Mem_addr;
-  
-  
-  function new(string name = "alu_sequence_item");
-    super.new(name);
-  endfunction: new
-	
-endclass
 
-
-class rf_sequence_item extends uvm_sequence_item;
-	
-  `uvm_object_utils(rf_sequence_item)
   
-  parameter WIDTH = 32;
+  //------------------------ End of ALU Constraints ---------------------------------
 
-  // Instantiations
-  
-  // Inputs | RD_Data input comes from the ALU or DMU
-  rand logic rst;
+  //-------------------------------- RF Constraints ---------------------------------
+
+  // Inputs
   rand logic write_en;
   rand logic[4:0] RS1, RS2, RD;
-  
+
   // Register Constraints across all 32 possible registers
   constraint RS1_c{RS1 inside {[1:31]};}
   constraint RS2_c{RS2 inside {[1:31]};}
   constraint RD_c {RD inside {[1:31]};}
 
-  // Outputs
+   // Outputs
   logic[WIDTH-1:0] RS1_data, RS2_data;
-  
-  
-  function new(string name = "rf_sequence_item");
-    super.new(name);
-  endfunction: new
-	
-endclass
 
-class dmu_sequence_item extends uvm_sequence_item;
-	
-  `uvm_object_utils(dmu_sequence_item)
+  //-------------------------------- End of RF Constraints --------------------------
   
-  parameter WIDTH = 32;
 
-  // Instantiations
-  
-  // Inputs | write_data comes from register file, addr comes from ALU
+  //-------------------------------- DMU Constraints --------------------------------
+
+    // Inputs 
   rand logic rst;
   rand logic read_en, write_en;
   
@@ -121,9 +100,10 @@ class dmu_sequence_item extends uvm_sequence_item;
   // Outputs
   logic[WIDTH-1:0] out_data;
   
-  
-  function new(string name = "dmu_sequence_item");
+  function new(string name = "alu_sequence_item");
     super.new(name);
   endfunction: new
+
+  //------------------------------- End of DMU Constraints --------------------------
 	
 endclass
