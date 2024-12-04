@@ -1,9 +1,9 @@
 // Object class
 
 
-class alu_sequence_item extends uvm_sequence_item;
+class data_tx_sequence_item extends uvm_sequence_item;
 	
-  `uvm_object_utils(alu_sequence_item)
+  `uvm_object_utils(data_tx_sequence_item)
   
   parameter WIDTH = 32;
 
@@ -100,7 +100,7 @@ class alu_sequence_item extends uvm_sequence_item;
   // Outputs
   logic[WIDTH-1:0] out_data;
   
-  function new(string name = "alu_sequence_item");
+  function new(string name = "data_tx_sequence_item");
     super.new(name);
   endfunction: new
 
