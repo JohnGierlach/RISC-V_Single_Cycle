@@ -9,6 +9,7 @@ module data_tx_top #(parameter WIDTH = 32)(
     input[4:0] Shamt,
     input write_en, read_en,
     input[4:0] RS1, RS2, RD,
+    output[WIDTH-1:0] ALU_data_out,
     output [WIDTH-1:0] Mem_addr_out,
     output[WIDTH-1:0] RS2_data_out, RS1_data_out,
     output[WIDTH-1:0] dmu_out_data
@@ -62,10 +63,10 @@ module data_tx_top #(parameter WIDTH = 32)(
     assign RS2_data_out = RS2_data;
 
     // ALU Debug Bus
-    assign RD_data_out = RD_data;
+    assign ALU_data_out = ALU_data;
     assign Mem_addr_out = Mem_addr;
 
     // DMU Debug Bus
-    assign dmu_out_data = out_data
+    assign dmu_out_data = MEM_data
 
 endmodule
