@@ -23,7 +23,7 @@ import uvm_pkg::*;
 `include "alu_top.v"
 `include "dmu_engine.v"
 `include "register_select.v"
-
+`include "data_tx.v"
 
 module top;
   
@@ -33,51 +33,26 @@ module top;
 
   logic clock;
   
-  alu_interface alu_intf(.clock(clock));
-  rf_interface rf_intf(.clock(clock));
-  dmu_interface dmu_intf(.clock(clock));
-  
-  alu_top dut0(
-    .clk(alu_intf.clk),
-    .rst(alu_intf.rst),
-    .pc(alu_intf.pc),
-    .RS1(alu_intf.RS1),
-    .RS2(alu_intf.RS2),
-    .Funct3(alu_intf.Funct3),
-    .Funct7(alu_intf.Funct7),
-    .opcode(alu_intf.opcode),
-    .Imm_reg(alu_intf.Imm_reg),
-    .Shamt(alu_intf.Shamt),
-    .RD(alu_intf.RD),
-    .Mem_addr(alu_intf.Mem_addr)
+  data_tx_interface data_tx_intf(.clock(clock));
+
+  data_tx dut(
+    .clk(data_tx_intf.clk), 
+    .rst(data_tx_intf.rst), 
+    .pc(data_tx_intf.pc),
+    .Funct3(data_tx_intf.Funct3),
+    .Funct7(data_tx_intf.Funct7),
+    .opcode(data_tx_intf.opcode),
+    .Imm_reg(data_tx_intf.Imm_reg),
+    .Shamt(data_tx_intf.Shamt),
+    .write_en(data_tx_intf.write_en), .read_en(data_tx_intf.read_en),
+    .RS1(data_tx_intf.RS1), .RS2(data_tx_intf.RS2), .RD(data_tx_intf.RD),
+    .Mem_addr_out(data_tx_intf.Mem_addr_out),
+    .RS2_data_out(data_tx_intf.RS2_data_out), .RS1_data_out(data_tx_intf.RS1_data_out),
+    .dmu_out_data(data_tx_intf.dmu_out_data)
   );
 
-  register_select dut1(
-    .clk(rf_intf.clk),
-    .rst(rf_intf.rst),
-    .write_en(rf_intf.write_en),
-    .RS1(rf_intf.RS1),
-    .RS2(rf_intf.RS2),
-    .RD(rf_intf.RD),
-    .RD_data(rf_intf.RD_data),
-    .RS1_data(rf_intf.RS1_data),
-    .RS2_data(rf_intf.RS2_data)
-  );
-  
-  dmu_engine dut2(
-    .clk(dmu_intf.clk),
-    .rst(dmu_intf.rst),
-    .read_en(dmu_intf.read_en),
-    .write_en(dmu_intf.write_en),
-    .write_data(dmu_intf.write_data),
-    .addr(dmu_intf.addr),
-    .out_data(dmu_intf.out_data)
-  );
-  
   initial begin
-    uvm_config_db #(virtual alu_interface)::set(null, "*", "alu_vif", alu_intf);
-    uvm_config_db #(virtual rf_interface)::set(null, "*", "rf_vif", rf_intf);
-    uvm_config_db #(virtual dmu_interface)::set(null, "*", "dmu_vif", dmu_intf);
+    uvm_config_db #(virtual data_tx_interface)::set(null, "*", "data_tx_vif", data_tx_intf);
   end
   
   
