@@ -9,13 +9,12 @@ module data_tx_top #(parameter WIDTH = 32)(
     input[4:0] Shamt,
     input write_en, read_en,
     input[4:0] RS1, RS2, RD,
-    input[WIDTH-1:0] RD_data_out,
     output [WIDTH-1:0] Mem_addr_out,
     output[WIDTH-1:0] RS2_data_out, RS1_data_out,
     output[WIDTH-1:0] dmu_out_data
 );
 
-    wire[WIDTH-1:0] RS1_data, RS2_data, RD_data;
+    wire[WIDTH-1:0] RS1_data, RS2_data, RD_data, MEM_data, ALU_data;
 
     wire[WIDTH-1:0] Mem_addr;
 
@@ -55,6 +54,8 @@ module data_tx_top #(parameter WIDTH = 32)(
                            .addr(Mem_addr),
                            .write_data(RS2_data),
                            .out_data(MEM_data));
+
+    assign RD_data = read_en ? MEM_data:ALU_data; 
 
     // Register File Debug Bus
     assign RS1_data_out = RS1_data;
