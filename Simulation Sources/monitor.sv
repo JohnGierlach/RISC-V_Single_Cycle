@@ -1,12 +1,12 @@
-class alu_monitor extends uvm_monitor;
-  `uvm_component_utils(alu_monitor)
+class data_tx_monitor extends uvm_monitor;
+  `uvm_component_utils(data_tx_monitor)
   
-  virtual alu_interface vif_alu;
-  alu_sequence_item alu_item;
+  virtual data_tx_interface data_tx_vif;
+  data_tx_sequence_item data_tx_item;
 
-  uvm_analysis_port #(alu_sequence_item) alu_monitor_port;
+  uvm_analysis_port #(data_tx_sequence_item) data_tx_monitor_port;
   
-  function new(string name = "alu_monitor", uvm_component parent);
+  function new(string name = "data_tx_monitor", uvm_component parent);
     super.new(name, parent);
     `uvm_info("MONITOR_CLASS", "Inside Constructor!", UVM_HIGH)
     
@@ -20,9 +20,9 @@ class alu_monitor extends uvm_monitor;
     super.build_phase(phase);
     `uvm_info("MONITOR_CLASS", "Build Phase!", UVM_HIGH)
 
-    alu_monitor_port = new("alu_monitor_port", this);
+    data_tx_monitor_port = new("alu_monitor_port", this);
     
-    if(!(uvm_config_db#(virtual alu_interface)::get(this, "*",  "vif_alu", vif_alu)))begin
+    if(!(uvm_config_db#(virtual data_tx_interface)::get(this, "*",  "data_tx_vif", data_tx_vif)))begin
       `uvm_error("MONTIOR_CLASS", "Failed to get VIF from config DB!");
     end
     
@@ -44,176 +44,54 @@ class alu_monitor extends uvm_monitor;
     `uvm_info("MONITOR_CLASS", "Inside Run Phase!", UVM_HIGH)
     
     forever begin
-      alu_item = alu_sequence_item::type_id::create("alu_item");
+      data_tx_item = data_tx_sequence_item::type_id::create("data_tx_item");
 
-      wait(!vif_alu.rst);
+      wait(!data_tx_vif.rst);
 
-      // Capturing all inputs for alu interface
-      @(posedge vif_alu.clk)begin
-      	alu_item.rst = vif_alu.rst;
-        alu_item.pc = vif_alu.pc;
-        alu_item.RS1 = vif_alu.RS1;
-        alu_item.RS2 = vif_alu.RS2;
-        alu_item.Funct3 = vif_alu.Funct3;
-        alu_item.Funct7 = vif_alu.Funct7;
-        alu_item.Imm_reg = vif_alu.Imm_reg;
-        alu_item.Shamt = vif_alu.Shamt;
-        alu_item.opcode = vif_alu.opcode;
+      // Capturing all inputs for data_tx interface
+      @(posedge data_tx_vif.clk)begin
+      	
+        // Global Reset
+        data_tx_item.rst = data_tx_vif.rst;
+        data_tx_item.pc = data_tx_vif.pc;
+        
+        // RF Input Signals
+        data_tx_item.RS1 = data_tx_vif.RS1;
+        data_tx_item.RS2 = data_tx_vif.RS2;
+        data_tx_item.RD = data_tx_vif.RD;
+
+        // ALU Input Signals
+        data_tx_item.Funct3 = data_tx_vif.Funct3;
+        data_tx_item.Funct7 = data_tx_vif.Funct7;
+        data_tx_item.Imm_reg = data_tx_vif.Imm_reg;
+        data_tx_item.Shamt = data_tx_vif.Shamt;
+        data_tx_item.opcode = data_tx_vif.opcode;
+
+        // RF & DMU Input WE
+        data_tx_item.write_en = data_tx_vif.write_en;
+
+        // DMU Input Signal
+        data_tx_item.read_en = data_tx_vif.read_en;
       end
      
-      // Capturing all outputs for alu interface
-      @(posedge vif_alu.clk)begin
-      	alu_item.Mem_addr = vif_alu.Mem_addr;
-        alu_item.RD = vif_alu.RD;
+      // Capturing all outputs for data_tx interface
+      @(posedge data_tx_vif.clk)begin
+      	
+        // RF Output signals
+        data_tx_item.RS1_data_out = data_tx_vif.RS1_data_out;
+      	data_tx_item.RS2_data_out = data_tx_vif.RS2_data_out;
+        
+        // ALU Output Signals
+        data_tx_item.Mem_addr_out = data_tx_vif.Mem_addr_out;
+        data_tx_item.ALU_data_out = data_tx_vif.ALU_data_out;
+
+        // DMU Output Signals
+      	data_tx_item.dmu_out_data = data_tx_vif.dmu_out_data;
+      	
       end
 
     end
     
   endtask: run_phase
 
-endclass: alu_monitor
-
-
-class rf_monitor extends uvm_monitor;
-  `uvm_component_utils(rf_monitor)
-  
-  virtual rf_interface vif_rf;
-  rf_sequence_item rf_item;
-
-  uvm_analysis_port #(rf_sequence_item) rf_monitor_port;
-  
-  function new(string name = "rf_monitor", uvm_component parent);
-    super.new(name, parent);
-    `uvm_info("MONITOR_CLASS", "Inside Constructor!", UVM_HIGH)
-    
-  endfunction: new
-
-  //--------------------------------------------------------
-  //Build Phase
-  //--------------------------------------------------------  
-  function void build_phase(uvm_phase phase);
-    
-    super.build_phase(phase);
-    `uvm_info("MONITOR_CLASS", "Build Phase!", UVM_HIGH)
-
-    rf_monitor_port = new("rf_monitor_port", this);
-    
-    if(!(uvm_config_db#(virtual rf_interface)::get(this, "*",  "vif_rf", vif_rf)))begin
-      `uvm_error("MONTIOR_CLASS", "Failed to get VIF from config DB!");
-    end
-    
-  endfunction: build_phase
-  
-  //--------------------------------------------------------
-  //Connect Phase
-  //--------------------------------------------------------
-  function void connect_phase(uvm_phase phase);
-    super.connect_phase(phase);
-    `uvm_info("MONITOR_CLASS", "Connect Phase!", UVM_HIGH)
-  endfunction: connect_phase
-
-  //--------------------------------------------------------
-  //Run Phase
-  //--------------------------------------------------------
-  task run_phase(uvm_phase phase);
-    super.run_phase(phase);
-    `uvm_info("MONITOR_CLASS", "Inside Run Phase!", UVM_HIGH)
-    
-    forever begin
-      rf_item = rf_sequence_item::type_id::create("rf_item");
-
-      wait(!vif_rf.rst);
-
-      // Capturing all inputs for rf interface
-      @(posedge vif_rf.clk)begin
-        rf_item.RD_data = vif_rf.RD_data;
-      	rf_item.rst = vif_rst.rst;
-        rf_item.write_en = vif_rf.write_en;
-        rf_item.RS1 = vif_rf.RS1;
-        rf_item.RS2 = vif_rf.RS2;
-        rf_item.RD = vif_rf.RD;
-      end
-     
-      // Capturing all outputs for rf interface
-      @(posedge vif_rf.clk)begin
-      	rf_item.RS1_data = vif_rf.RS1_data;
-        rf_item.RS2_data = vif_rf.RS2_data;
-      end
-
-      // Send item to scoreboard
-      rf_monitor_port.write(rf_item);
-    end
-    
-  endtask: run_phase
-endclass: rf_monitor
-
-class dmu_monitor extends uvm_monitor;
-  `uvm_component_utils(dmu_monitor)
-  
-  virtual dmu_interface vif_dmu;
-  dmu_sequence_item dmu_item;
-
-  uvm_analysis_port #(dmu_sequence_item) dmu_monitor_port;
-  
-  function new(string name = "dmu_monitor", uvm_component parent);
-    super.new(name, parent);
-    `uvm_info("MONITOR_CLASS", "Inside Constructor!", UVM_HIGH)
-    
-  endfunction: new
-
-  //--------------------------------------------------------
-  //Build Phase
-  //--------------------------------------------------------  
-  function void build_phase(uvm_phase phase);
-    
-    super.build_phase(phase);
-    `uvm_info("MONITOR_CLASS", "Build Phase!", UVM_HIGH)
-
-    dmu_monitor_port = new("dmu_monitor_port", this);
-    
-    if(!(uvm_config_db#(virtual dmu_interface)::get(this, "*",  "vif_dmu", vif_dmu)))begin
-      `uvm_error("MONTIOR_CLASS", "Failed to get VIF from config DB!");
-    end
-    
-  endfunction: build_phase
-  
-  //--------------------------------------------------------
-  //Connect Phase
-  //--------------------------------------------------------
-  function void connect_phase(uvm_phase phase);
-    super.connect_phase(phase);
-    `uvm_info("MONITOR_CLASS", "Connect Phase!", UVM_HIGH)
-  endfunction: connect_phase
-
-  //--------------------------------------------------------
-  //Run Phase
-  //--------------------------------------------------------
-  task run_phase(uvm_phase phase);
-    super.run_phase(phase);
-    `uvm_info("MONITOR_CLASS", "Inside Run Phase!", UVM_HIGH)
-    
-    forever begin
-      dmu_item = dmu_sequence_item::type_id::create("dmu_item");
-
-      wait(!vif_dmu.rst);
-
-      // Capturing all inputs for dmu interface
-      @(posedge vif_dmu.clk)begin
-      	dmu_item.write_data = vif_dmu.write_data;
-        dmu_item.addr = vif_dmu.addr;
-        dmu_item.rst = vif_dmu.rst;
-        dmu_item.read_en = vif_dmu.read_en;
-        dmu_item.write_en = vif_dmu.write_en;
-      end
-     
-      // Capturing all outputs for dmu interface
-      @(posedge vif_dmu.clk)begin
-      	dmu_item.out_data = vif_dmu.out_data;
-      end
-
-      // Send item to scoreboard
-      dmu_monitor_port.write(dmu_item);
-    end
-    
-  endtask: run_phase
-endclass: dmu_monitor
+endclass: data_tx_monitor

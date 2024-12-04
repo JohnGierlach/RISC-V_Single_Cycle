@@ -67,6 +67,6 @@ module data_tx_top #(parameter WIDTH = 32)(
     assign Mem_addr_out = Mem_addr;
 
     // DMU Debug Bus
-    assign dmu_out_data = MEM_data
+    assign dmu_out_data = MEM_data;
 
 endmodule
