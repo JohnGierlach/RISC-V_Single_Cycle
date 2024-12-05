@@ -17,7 +17,7 @@ class data_tx_driver extends uvm_driver#(data_tx_sequence_item);
     super.build_phase(phase);
     `uvm_info("DRIVER_CLASS", "Build Phase!", UVM_HIGH)
     
-    if(!(uvm_config_db#(virtual data_tx_interface)::get(this, "*",  "data_tx_item", data_tx_item)))begin
+    if(!(uvm_config_db#(virtual data_tx_interface)::get(this, "*",  "data_tx_vif", data_tx_vif)))begin
       `uvm_error("DRIVER_CLASS", "Failed to get VIF from config DB!");
     end
 
@@ -43,14 +43,15 @@ class data_tx_driver extends uvm_driver#(data_tx_sequence_item);
 
       data_tx_item = data_tx_sequence_item::type_id::create("data_tx_item");
       seq_item_port.get_next_item(data_tx_item);
-      alu_drive(data_tx_item);
+      drive(data_tx_item);
       seq_item_port.item_done();
+      
                                                
     end
             
   endtask: run_phase
   
-  task alu_drive(alu_sequence_item data_tx_item);
+  task drive(data_tx_sequence_item data_tx_item);
     @(posedge data_tx_vif.clk)begin
 
         // Global Reset
@@ -75,19 +76,8 @@ class data_tx_driver extends uvm_driver#(data_tx_sequence_item);
         // DMU Input Signal
         data_tx_vif.read_en = data_tx_item.read_en;
 
-
-        // RF Output signals
-        data_tx_vif.RS1_data_out = data_tx_item.RS1_data_out;
-      	data_tx_vif.RS2_data_out = data_tx_item.RS2_data_out;
-        
-        // ALU Output Signals
-        data_tx_vif.Mem_addr_out = data_tx_item.Mem_addr_out;
-        data_tx_vif.ALU_data_out = data_tx_item.ALU_data_out;
-
-        // DMU Output Signals
-      	data_tx_vif.dmu_out_data = data_tx_item.dmu_out_data;
     end
-  endtask: alu_drive
+  endtask: drive
 
 endclass: data_tx_driver
 

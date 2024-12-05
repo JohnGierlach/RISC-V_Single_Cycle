@@ -30,7 +30,7 @@ class data_tx_env extends uvm_env;
     super.connect_phase(phase);
     `uvm_info("ENV_CLASS", "Connect Phase!", UVM_HIGH)
     
-    agnt.mon.data_tx_monitor_port.connect(scb.scoreboard_port);
+    agnt.mon.data_tx_monitor_port.connect(scb.data_tx_scoreboard_port);
     agnt.mon.data_tx_monitor_port.connect(coverage.analysis_export);
   endfunction: connect_phase
   

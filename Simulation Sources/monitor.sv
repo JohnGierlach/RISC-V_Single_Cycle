@@ -90,6 +90,8 @@ class data_tx_monitor extends uvm_monitor;
       	
       end
 
+      data_tx_monitor_port.write(data_tx_item);
+
     end
     
   endtask: run_phase

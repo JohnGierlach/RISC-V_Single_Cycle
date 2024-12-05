@@ -6,7 +6,7 @@ class data_tx_sequence_item extends uvm_sequence_item;
   `uvm_object_utils(data_tx_sequence_item)
   
   parameter WIDTH = 32;
-
+  localparam R_TYPE = 7'h33, I_TYPE = 7'h13, LOAD = 7'b0000011, STORE = 7'b0100011;
   // Instantiations
   
   //-------------------------------- ALU Constraints --------------------------------
@@ -14,7 +14,6 @@ class data_tx_sequence_item extends uvm_sequence_item;
   // Inputs
   rand logic rst;
   rand logic[WIDTH-1:0] pc;
-  // rand logic[WIDTH-1:0] RS1, RS1; | Gets these values from Register file intf
   rand logic[2:0] Funct3;
   rand logic[6:0] Funct7;
   rand logic[6:0] opcode;
@@ -28,11 +27,13 @@ class data_tx_sequence_item extends uvm_sequence_item;
     pc == 0;
   }
 
-  // Equal 50% chance to either be R-Type or I-Type instruction
+  // Equal 25% chance to either be R-Type or I-Type instruction
   constraint opcode_c{
     opcode dist {
-      7'h33 := 1, // R-Type
-      7'h13 := 1 // I-Type
+      R_TYPE := 1, // R-Type
+      I_TYPE := 1, // I-Type
+	  LOAD   := 1,
+      STORE  := 1
     };
   }
   
@@ -67,8 +68,8 @@ class data_tx_sequence_item extends uvm_sequence_item;
     Shamt dist {[0:31] := 1};
   }
   // Outputs
-  logic[WIDTH-1:0] RD;
-  logic[WIDTH-1:0] Mem_addr;
+  logic[WIDTH-1:0] ALU_data_out;
+  logic[WIDTH-1:0] Mem_addr_out;
 
   
   //------------------------ End of ALU Constraints ---------------------------------
@@ -77,15 +78,15 @@ class data_tx_sequence_item extends uvm_sequence_item;
 
   // Inputs
   rand logic write_en;
-  rand logic[4:0] RS1, RS2, RD;
+  randc logic[4:0] RS1, RS2, RD;
 
   // Register Constraints across all 32 possible registers
-  constraint RS1_c{RS1 inside {[1:31]};}
-  constraint RS2_c{RS2 inside {[1:31]};}
-  constraint RD_c {RD inside {[1:31]};}
+  constraint RS1_c{RS1 inside {[0:31]};}
+  constraint RS2_c{RS2 inside {[0:31]};}
+  constraint RD_c {RD inside {[0:31]};}
 
    // Outputs
-  logic[WIDTH-1:0] RS1_data, RS2_data;
+  logic[WIDTH-1:0] RS1_data_out, RS2_data_out;
 
   //-------------------------------- End of RF Constraints --------------------------
   
@@ -98,7 +99,7 @@ class data_tx_sequence_item extends uvm_sequence_item;
   
   
   // Outputs
-  logic[WIDTH-1:0] out_data;
+  logic[WIDTH-1:0] dmu_out_data;
   
   function new(string name = "data_tx_sequence_item");
     super.new(name);

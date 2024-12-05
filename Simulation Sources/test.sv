@@ -53,10 +53,13 @@ class data_tx_test extends uvm_test;
     // Reset sequence, reset ALU, DMU, and RF
     reset_seq = base_sequence::type_id::create("reset_seq");
     reset_seq.start(env.agnt.seqr);
-    #10;
-
+    #20;
+	
+    `uvm_info("SEQUENCE", "Finished Reset Sequence", UVM_HIGH);
+    
     // Initilize 32 registers with values
     repeat(32) begin
+      `uvm_info("SEQUENCE", "Run Initilize Register Sequence", UVM_HIGH);
       init_regs_seq = init_regs_sequence::type_id::create("init_regs_seq");
       init_regs_seq.start(env.agnt.seqr);
       #10;

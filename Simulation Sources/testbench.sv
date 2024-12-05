@@ -22,6 +22,7 @@ import uvm_pkg::*;
 `include "dmu_engine.v"
 `include "register_select.v"
 `include "data_tx.v"
+`include "data_tx_interface.sv"
 
 module top;
   
@@ -31,9 +32,9 @@ module top;
 
   logic clock;
   
-  data_tx_interface data_tx_intf(.clock(clock));
+  data_tx_interface data_tx_intf(.clk(clock));
 
-  data_tx dut(
+  data_tx_top dut(
     .clk(data_tx_intf.clk), 
     .rst(data_tx_intf.rst), 
     .pc(data_tx_intf.pc),
@@ -44,6 +45,7 @@ module top;
     .Shamt(data_tx_intf.Shamt),
     .write_en(data_tx_intf.write_en), .read_en(data_tx_intf.read_en),
     .RS1(data_tx_intf.RS1), .RS2(data_tx_intf.RS2), .RD(data_tx_intf.RD),
+    .ALU_data_out(data_tx_intf.ALU_data_out),
     .Mem_addr_out(data_tx_intf.Mem_addr_out),
     .RS2_data_out(data_tx_intf.RS2_data_out), .RS1_data_out(data_tx_intf.RS1_data_out),
     .dmu_out_data(data_tx_intf.dmu_out_data)
@@ -59,11 +61,11 @@ module top;
   end
   
   initial begin
-  	clock = 0;
-    #5;
+  	clock = 1;
+    #10
     forever begin
     	clock = ~clock;
-		#2;
+		#10;
     end
   end
   
@@ -73,5 +75,9 @@ module top;
     $finish;
   end
   
+  initial begin
+    $dumpfile("dumpfile.vcd");
+    $dumpvars;
+  end
   
 endmodule: top
