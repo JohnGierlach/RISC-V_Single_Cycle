@@ -1,9 +1,10 @@
 class coverage extends uvm_subscriber # (data_tx_sequence_item);
-`uvm_component_utils(ram_coverage)
+`uvm_component_utils(coverage)
 
+uvm_analysis_imp#(data_tx_sequence_item, coverage) data_tx_coverage_port;
 
 function new(string name = "coverage", uvm_component parent);
-    super.new(parent);
+  super.new(name,parent);
     dut_cov = new();
 endfunction
 
@@ -20,7 +21,7 @@ covergroup dut_cov;
     cp_RS1_data: coverpoint txn.RS1_data_out {option.auto_bin_max=8;}
     cp_RS2_data: coverpoint txn.RS2_data_out {option.auto_bin_max=8;}
     cp_dmu_out_data: coverpoint txn.dmu_out_data {option.auto_bin_max=8;}
-    cp_alu_data_out: coverpoint txn.alu_data_out {option.auto_bin_max=8;}
+    cp_alu_data_out: coverpoint txn.ALU_data_out {option.auto_bin_max=8;}
     cp_imm_reg: coverpoint txn.Imm_reg iff (txn.opcode == I_TYPE) {option.auto_bin_max=8;}
 
     cp_opcode: coverpoint txn.opcode{
@@ -38,10 +39,10 @@ covergroup dut_cov;
         bins sll = {SLL};
         bins slt = {SLT};
         bins sltu = {SLTU};
-        bins xor = {XOR};
+        bins Xor = {XOR};
         bins srl = {SRL};
-        bins or = {OR};
-        bins and = {AND};
+        bins Or = {OR};
+        bins And = {AND};
         bins nop = {NOP};
         bins other = default;
     }
@@ -52,33 +53,40 @@ covergroup dut_cov;
         bins nonzero = default;
     }
 
-    cp_shamt: coverpoint txn.shamt iff (txn.opcode==I_TYPE && (txn.funct3 == SLL || txn.Funct3 == SRL))
+  cp_shamt: coverpoint txn.Shamt iff (txn.opcode==I_TYPE && (txn.Funct3 == SLL || txn.Funct3 == SRL))
     {
         option.auto_bin_max=32;
     }
 
     cp_arithmetic_instructions: cross cp_opcode, cp_Funct3;
 
-    cp_write_enable: txn.write_en {
+    cp_write_enable: coverpoint txn.write_en {
         bins enable_low = {0};
         bins enable_high = {1};
     }
 
-    cp_read_enable: txn.read_en {
+    cp_read_enable: coverpoint txn.read_en {
         bins enable_low = {0};
         bins enable_high = {1};
     }
 
     // Coverpoints for register file port accesses
-    cp_RS1_access: coverpoint txn.RS1{option.auto_bin_max=32}
-    cp_RS2_access: coverpoint txn.RS2{option.auto_bin_max=32}
-    cp_RD_access: coverpoint txn.RD{option.auto_bin_max=32}
+   cp_RS1_access: coverpoint txn.RS1{option.auto_bin_max=32;}
+   cp_RS2_access: coverpoint txn.RS2{option.auto_bin_max=32;}
+   cp_RD_access: coverpoint txn.RD{option.auto_bin_max=32;}
 
     // Coverpoint for memory address accesses
     cp_mem_addr: coverpoint txn.Mem_addr_out iff (txn.opcode==LOAD || txn.opcode==STORE)
-    {option.auto_bin_max=MEM_DEPTH};
+  {option.auto_bin_max=MEM_DEPTH;}
 
 endgroup : dut_cov
+
+function void build_phase(uvm_phase phase);
+    super.build_phase(phase);
+    `uvm_info("COVERAGE_CLASS", "Build Phase!", UVM_HIGH)
+
+    data_tx_coverage_port = new("data_tx_coverage_port", this);
+endfunction : build_phase
 
 function void write(data_tx_sequence_item t);
     txn = t;
