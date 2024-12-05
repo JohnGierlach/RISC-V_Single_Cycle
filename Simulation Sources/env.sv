@@ -3,6 +3,7 @@ class data_tx_env extends uvm_env;
   
   data_tx_agent agnt;
   scoreboard scb;
+  coverage cov;
   
   function new(string name = "data_tx_env", uvm_component parent);
     super.new(name, parent);
@@ -18,6 +19,7 @@ class data_tx_env extends uvm_env;
     
     agnt = data_tx_agent::type_id::create("agnt", this);
     scb = scoreboard::type_id::create("scb", this);
+    cov = coverage::type_id::create("cov", this);
     
   endfunction: build_phase
 
@@ -29,7 +31,7 @@ class data_tx_env extends uvm_env;
     `uvm_info("ENV_CLASS", "Connect Phase!", UVM_HIGH)
     
     agnt.mon.data_tx_monitor_port.connect(scb.scoreboard_port);
-    
+    agnt.mon.data_tx_monitor_port.connect(coverage.analysis_export);
   endfunction: connect_phase
   
   //--------------------------------------------------------

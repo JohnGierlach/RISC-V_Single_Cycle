@@ -14,6 +14,7 @@ import uvm_pkg::*;
 `include "driver.sv"
 `include "monitor.sv"
 `include "agent.sv"
+`include "coverage.sv"
 `include "risc-v-scoreboard.sv"
 `include "env.sv"
 `include "test.sv"
