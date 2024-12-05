@@ -1,8 +1,7 @@
 class scoreboard extends uvm_scoreboard;
     `uvm_component_utils(scoreboard)
-    `uvm_analysis_imp_decl(_data_tx_scoreboard_port)	
   
-    uvm_analysis_imp_data_tx_scoreboard_port #(data_tx_sequence_item, scoreboard) data_tx_scoreboard_port;
+    uvm_analysis_imp#(data_tx_sequence_item, scoreboard) data_tx_scoreboard_port;
 
     data_tx_sequence_item data_tx_transactions[$];
 
@@ -56,7 +55,7 @@ class scoreboard extends uvm_scoreboard;
 
       data_tx_curr_trans = data_tx_transactions.pop_front();
 
-      compare(data_tx_curr_transactions);
+      compare(data_tx_curr_trans);
       
     end
   endtask: run_phase
@@ -118,7 +117,7 @@ class scoreboard extends uvm_scoreboard;
 
     // -------------------------- Register File Write --------------------------
     if (!data_tx_curr_trans.write_en)
-        reg_file_model = (data_tx_curr_trans.read_en) ? data_tx_curr_trans.out_data : data_tx_curr_trans.RD;
+      reg_file_model[data_tx_curr_trans.RD] = (data_tx_curr_trans.read_en) ? data_tx_curr_trans.dmu_out_data : data_tx_curr_trans.ALU_data_out;
 
     // -------------------------- DMU Model --------------------------
     if (data_tx_curr_trans.read_en) begin
@@ -126,13 +125,31 @@ class scoreboard extends uvm_scoreboard;
     end 
     else if (data_tx_curr_trans.write_en) begin
         dmu_expected_out_data = 0;
-        mem_storage[data_tx_curr_trans.Mem_addr_out] = data_tx_curr_trans.RS2_data;
+      mem_storage[data_tx_curr_trans.Mem_addr_out] = data_tx_curr_trans.RS2_data_out;
     end
     
 
     // ========================== Pass-Fail Check ========================== 
-
+	
     // ALU DUT
+    `uvm_info("COMPARE", $sformatf("RS1:%d RS2:%d RD:%d Imm_Reg:%d Op:%h, Re:%d We:%d", data_tx_curr_trans.RS1,data_tx_curr_trans.RS2, 
+                                                                                        data_tx_curr_trans.RD,
+                                                                                        data_tx_curr_trans.Imm_reg,
+                                                                                        data_tx_curr_trans.opcode,
+                                                                                        data_tx_curr_trans.read_en,
+                                   									                    data_tx_curr_trans.write_en), UVM_LOW)
+    
+    `uvm_info("COMPARE", $sformatf("ALU_data_out:%d Mem_addr_out:%d RS1_D:%d RS2_D:%d DMU_Data:%d",  data_tx_curr_trans.ALU_data_out,
+                                                                                     data_tx_curr_trans.Mem_addr_out,
+                                   										             data_tx_curr_trans.RS1_data_out,
+                                   									                 data_tx_curr_trans.RS2_data_out,
+                                                                                     data_tx_curr_trans.dmu_out_data), UVM_LOW)
+    
+    `uvm_info("COMPARE", $sformatf("EXP_ALU:%d EXP_M_ADDR:%d EXP_DMU:%d EXP_RS1:%d EXP_RS2:%d", alu_expected_data_out,
+                                                                                                alu_expected_mem_addr,
+                                                                                                dmu_expected_out_data,
+                                                                                                expected_RS1_data,
+                                  																expected_RS2_data), UVM_LOW)
     if (data_tx_curr_trans.rst) begin
       `uvm_info("RESET", $sformatf("do not compare"), UVM_LOW)
         PASS(); // May want to remove pass
@@ -152,7 +169,7 @@ class scoreboard extends uvm_scoreboard;
         FAIL();
     end
     else begin
-        `uvm_info("COMPARE", $sformatf("Transaction Passed"), UVM_LOW);
+      `uvm_info("COMPARE", $sformatf("Transaction Passed!"), UVM_LOW);
         PASS();
     end
     
