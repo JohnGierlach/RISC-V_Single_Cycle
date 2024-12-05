@@ -43,14 +43,14 @@ class data_tx_driver extends uvm_driver#(data_tx_sequence_item);
 
       data_tx_item = data_tx_sequence_item::type_id::create("data_tx_item");
       seq_item_port.get_next_item(data_tx_item);
-      alu_drive(data_tx_item);
+      drive(data_tx_item);
       seq_item_port.item_done();
                                                
     end
             
   endtask: run_phase
   
-  task alu_drive(alu_sequence_item data_tx_item);
+  task drive(data_tx_sequence_item data_tx_item);
     @(posedge data_tx_vif.clk)begin
 
         // Global Reset
