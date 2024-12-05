@@ -1,17 +1,10 @@
-class risc_v_scoreboard extends uvm_scoreboard;
-    `uvm_component_utils(risc_v_scoreboard)
-    `uvm_analysis_imp_decl(_alu_scoreboard_port)	
-    `uvm_analysis_imp_decl(_rf_scoreboard_port)	
-    `uvm_analysis_imp_decl(_dmu_scoreboard_port)	
+class scoreboard extends uvm_scoreboard;
+    `uvm_component_utils(scoreboard)
+    `uvm_analysis_imp_decl(_data_tx_scoreboard_port)	
   
-  
-    uvm_analysis_imp_alu_scoreboard_port #(alu_sequence_item, risc_v_scoreboard) alu_scoreboard_port;
-    uvm_analysis_imp_rf_scoreboard_port #(rf_sequence_item, risc_v_scoreboard) rf_scoreboard_port;
-    uvm_analysis_imp_dmu_scoreboard_port #(dmu_sequence_item, risc_v_scoreboard) dmu_scoreboard_port;
+    uvm_analysis_imp_data_tx_scoreboard_port #(data_tx_sequence_item, scoreboard) data_tx_scoreboard_port;
 
-    alu_sequence_item alu_transactions[$];
-    rf_sequence_item rf_transactions[$];
-    dmu_sequence_item dmu_transactions[$];
+    data_tx_sequence_item data_tx_transactions[$];
 
     int VECTOR_CNT, PASS_CNT, ERROR_CNT;
     bit pass;
@@ -19,12 +12,11 @@ class risc_v_scoreboard extends uvm_scoreboard;
     parameter WIDTH=32;
 
     // Constructor
-    function new(string name = "risc_v_scoreboard", uvm_component parent = null);
+    function new(string name = "scoreboard", uvm_component parent = null);
         super.new(name, parent);
         `uvm_info("SCB_CLASS", "Inside Constructor!", UVM_HIGH)
     endfunction: new
 
-    
     //--------------------------------------------------------
     //Connect Phase
     //--------------------------------------------------------
@@ -38,27 +30,14 @@ class risc_v_scoreboard extends uvm_scoreboard;
         super.build_phase(phase);
         `uvm_info("SCB_CLASS", "Build Phase!", UVM_HIGH)
    
-        alu_scoreboard_port = new("alu_scoreboard_port", this);
-        rf_scoreboard_port = new("rf_scoreboard_port", this);
-        dmu_scoreboard_port = new("dmu_scoreboard_port", this);
+        data_tx_scoreboard_port = new("data_tx_scoreboard_port", this);
   endfunction: build_phase
-    
-    // Write method
-    function void write_alu_scoreboard_port(alu_sequence_item alu_item);
-    //`uvm_info("write", $sformatf("Data received = 0x%0h", data), UVM_MEDIUM)
-        alu_transactions.push_back(alu_item);
-    endfunction: write_alu_scoreboard_port
   
-    function void write_rf_scoreboard_port(rf_sequence_item rf_item);
-    //`uvm_info("write", $sformatf("Data received = 0x%0h", data), UVM_MEDIUM)
-        rf_transactions.push_back(rf_item);
-    endfunction: write_rf_scoreboard_port
-  
-    function void write_dmu_scoreboard_port(dmu_sequence_item dmu_item);
+    function void write(data_tx_sequence_item data_tx_item);
     //`uvm_info("write", $sformatf("Data received = 0x%0h", data), UVM_MEDIUM)
 
-        dmu_transactions.push_back(dmu_item);
-    endfunction: write_dmu_scoreboard_port
+        data_tx_transactions.push_back(data_tx_item);
+    endfunction: write
 
 //--------------------------------------------------------›
   //Run Phase
@@ -72,15 +51,12 @@ class risc_v_scoreboard extends uvm_scoreboard;
     `uvm_info("SCB_CLASS", "Run Phase!", UVM_HIGH)
    
     forever begin
-      alu_sequence_item alu_curr_trans;
-      rf_sequence_item rf_curr_trans;
-      dmu_sequence_item dmu_curr_trans;
-      wait((alu_transactions.size() != 0));
+      data_tx_sequence_item data_tx_curr_trans;
+      wait((data_tx_transactions.size() != 0));
 
-      alu_curr_trans = alu_transactions.pop_front();
-      rf_curr_trans = rf_transactions.pop_front();
-      dmu_curr_trans = dmu_transactions.pop_front();
-      compare(alu_curr_trans, rf_curr_trans, dmu_curr_trans);
+      data_tx_curr_trans = data_tx_transactions.pop_front();
+
+      compare(data_tx_curr_transactions);
       
     end
   endtask: run_phase
@@ -88,101 +64,91 @@ class risc_v_scoreboard extends uvm_scoreboard;
     //--------------------------------------------------------
   //Compare : Generate Expected Result and Compare with Actual
   //--------------------------------------------------------
-  task compare(alu_sequence_item alu_curr_trans, rf_sequence_item rf_curr_trans, dmu_sequence_item dmu_curr_trans);
-    logic [WIDTH-1:0] alu_expected_RD, alu_expected_mem_addr;
+  task compare(data_tx_sequence_item data_tx_curr_trans);
+    logic [WIDTH-1:0] alu_expected_data_out, alu_expected_mem_addr;
     logic [WIDTH-1:0] dmu_expected_out_data;
-    logic [WIDTH-1:0] rf_expected_RS1_data, rf_expected_RS2_data;
+    logic [WIDTH-1:0] expected_RS1_data, expected_RS2_data;
 
     localparam ADD = 0, SLL = 1, SLT = 2, SLTU = 3, XOR = 4, SRL = 5, OR = 6, AND = 7, NOP = 8;
     localparam R_TYPE = 7'h33, I_TYPE = 7'h13, LOAD = 7'b0000011, STORE = 7'b0100011;
 
+    expected_RS1_data = reg_file_model[data_tx_curr_trans.RS1];
+    expected_RS2_data = reg_file_model[data_tx_curr_trans.RS2];
+
     // -------------------------- ALU Model --------------------------
     // R-Type Instruction
-    if(alu_curr_trans.opcode == R_TYPE) begin
-        case(alu_curr_trans.Funct3)
-            ADD:    alu_expected_RD = (alu_curr_trans.Funct7 == 7'h20) ? (rf_curr_trans.RS1_data - rf_curr_trans.RS2_data) : (rf_curr_trans.RS1_data - rf_curr_trans.RS2_data);
-            SLL:    alu_expected_RD = rf_curr_trans.RS1_data << rf_curr_trans.RS2_data;
+    if(data_tx_curr_trans.opcode == R_TYPE) begin
+        case(data_tx_curr_trans.Funct3)
+            ADD:    alu_expected_data_out = (data_tx_curr_trans.Funct7 == 7'h20) ? (expected_RS1_data - expected_RS2_data) : (expected_RS1_data - expected_RS2_data);
+            SLL:    alu_expected_data_out = expected_RS1_data << expected_RS2_data;
             // Potential Edge Case
-            SLT:    alu_expected_RD = (rf_curr_trans.RS1_data[WIDTH-1] ^ rf_curr_trans.RS2_data[WIDTH-1]) ? rf_curr_trans.RS1_data[WIDTH-1] : 
-            {(rf_curr_trans.RS1_data - rf_curr_trans.RS2_data)}[WIDTH-1];
-            SLTU:   alu_expected_RD = (rf_curr_trans.RS1_data < rf_curr_trans.RS2_data) ? 1'b1 : 1'b0;
-            XOR:    alu_expected_RD = rf_curr_trans.RS1_data ^ rf_curr_trans.RS2_data;
-            SRL:    alu_expected_RD = (alu_curr_trans.Funct7 == 7'h20) ? (rf_curr_trans.RS1_data >>> rf_curr_trans.RS2_data) : (rf_curr_trans.RS1_data >> rf_curr_trans.RS2_data);
-            OR:     alu_expected_RD = rf_curr_trans.RS1_data | rf_curr_trans.RS2_data;
-            AND:    alu_expected_RD = rf_curr_trans.RS1_data & rf_curr_trans.RS2_data;
-            default:    alu_expected_RD = alu_expected_RD;
+            SLT:    alu_expected_data_out = (expected_RS1_data[WIDTH-1] ^ expected_RS2_data[WIDTH-1]) ? expected_RS1_data[WIDTH-1] : 
+            {(expected_RS1_data - expected_RS2_data)}[WIDTH-1];
+            SLTU:   alu_expected_data_out = (expected_RS1_data < expected_RS2_data) ? 1'b1 : 1'b0;
+            XOR:    alu_expected_data_out = expected_RS1_data ^ expected_RS2_data;
+            SRL:    alu_expected_data_out = (data_tx_curr_trans.Funct7 == 7'h20) ? (expected_RS1_data >>> expected_RS2_data) : (expected_RS1_data >> expected_RS2_data);
+            OR:     alu_expected_data_out = expected_RS1_data | expected_RS2_data;
+            AND:    alu_expected_data_out = expected_RS1_data & expected_RS2_data;
+            default:    alu_expected_data_out = alu_expected_data_out;
         endcase
-    end else if (alu_curr_trans.opcode == I_TYPE) begin
-        case(alu_curr_trans.Funct3)
-            ADD:    alu_expected_RD = (alu_curr_trans.Funct7 == 7'h20) ? (rf_curr_trans.RS1_data - alu_curr_trans.Imm_reg) : (rf_curr_trans.RS1_data - alu_curr_trans.Imm_reg);
-            SLL:    alu_expected_RD = rf_curr_trans.RS1_data << alu_curr_trans.Shamt;
+    end else if (data_tx_curr_trans.opcode == I_TYPE) begin
+        case(data_tx_curr_trans.Funct3)
+            ADD:    alu_expected_data_out = (data_tx_curr_trans.Funct7 == 7'h20) ? (expected_RS1_data - data_tx_curr_trans.Imm_reg) : (expected_RS1_data - data_tx_curr_trans.Imm_reg);
+            SLL:    alu_expected_data_out = expected_RS1_data << data_tx_curr_trans.Shamt;
             // Might be wrong
-            SLT:    alu_expected_RD = (rf_curr_trans.RS1_data[WIDTH-1] ^ alu_curr_trans.Imm_reg[11]) ? rf_curr_trans.RS1_data[WIDTH-1] : 
-                    {(rf_curr_trans.RS1_data - alu_curr_trans.Imm_reg)}[WIDTH-1];
-            SLTU:   alu_expected_RD = (rf_curr_trans.RS1_data < alu_curr_trans.Imm_reg) ? 1'b1 : 1'b0;
-            XOR:    alu_expected_RD = rf_curr_trans.RS1_data ^ alu_curr_trans.Imm_reg;
-            SRL:    alu_expected_RD = (alu_curr_trans.Funct7 == 7'h20) ? (rf_curr_trans.RS1_data >>> alu_curr_trans.Shamt) : (rf_curr_trans.RS1_data >> alu_curr_trans.Shamt);
-            OR:     alu_expected_RD = rf_curr_trans.RS1_data | alu_curr_trans.Imm_reg;
-            AND:    alu_expected_RD = rf_curr_trans.RS1_data & alu_curr_trans.Imm_reg;
-            default:    alu_expected_RD = alu_expected_RD;
+            SLT:    alu_expected_data_out = (expected_RS1_data[WIDTH-1] ^ data_tx_curr_trans.Imm_reg[11]) ? expected_RS1_data[WIDTH-1] : 
+                    {(expected_RS1_data - data_tx_curr_trans.Imm_reg)}[WIDTH-1];
+            SLTU:   alu_expected_data_out = (expected_RS1_data < data_tx_curr_trans.Imm_reg) ? 1'b1 : 1'b0;
+            XOR:    alu_expected_data_out = expected_RS1_data ^ data_tx_curr_trans.Imm_reg;
+            SRL:    alu_expected_data_out = (data_tx_curr_trans.Funct7 == 7'h20) ? (expected_RS1_data >>> data_tx_curr_trans.Shamt) : (expected_RS1_data >> data_tx_curr_trans.Shamt);
+            OR:     alu_expected_data_out = expected_RS1_data | data_tx_curr_trans.Imm_reg;
+            AND:    alu_expected_data_out = expected_RS1_data & data_tx_curr_trans.Imm_reg;
+            default:    alu_expected_data_out = alu_expected_data_out;
         endcase
     end 
     // I-Type Load Instructon
-    else if (alu_curr_trans.opcode == LOAD) begin
-        alu_expected_mem_addr = rf_curr_trans.RS1_data + alu_curr_trans.Imm_reg;
+    else if (data_tx_curr_trans.opcode == LOAD) begin
+        alu_expected_mem_addr = expected_RS1_data + data_tx_curr_trans.Imm_reg;
     end
 
     // Store Instruction
-    else if (alu_curr_trans.opcode == STORE) begin
-        alu_expected_mem_addr = rf_curr_trans.RS1_data + alu_curr_trans.Imm_reg;
+    else if (data_tx_curr_trans.opcode == STORE) begin
+        alu_expected_mem_addr = expected_RS1_data + data_tx_curr_trans.Imm_reg;
     end
 
-    // -------------------------- Register File Model --------------------------
-    rf_expected_RS1_data = reg_file_model[rf_curr_trans.RS1];
-    rf_expected_RS2_data = reg_file_model[rf_curr_trans.RS2];
+    // -------------------------- Register File Write --------------------------
+    if (!data_tx_curr_trans.write_en)
+        reg_file_model = (data_tx_curr_trans.read_en) ? data_tx_curr_trans.out_data : data_tx_curr_trans.RD;
 
-    if (!rf_curr_trans.write_en)
-        reg_file_model = (dmu_curr_trans.read_en) ? dmu_curr_trans.out_data : alu_curr_trans.RD;
-
-    // // -------------------------- DMU Model --------------------------
-    if (dmu_curr_trans.read_en) begin
-        dmu_expected_out_data = mem_storage[alu_curr_trans.Mem_addr];
+    // -------------------------- DMU Model --------------------------
+    if (data_tx_curr_trans.read_en) begin
+        dmu_expected_out_data = mem_storage[data_tx_curr_trans.Mem_addr_out];
     end 
-    else if (dmu_curr_trans.write_en) begin
+    else if (data_tx_curr_trans.write_en) begin
         dmu_expected_out_data = 0;
-        mem_storage[alu_curr_trans.Mem_addr] = rf_curr_trans.RS2_data;
+        mem_storage[data_tx_curr_trans.Mem_addr_out] = data_tx_curr_trans.RS2_data;
     end
     
 
     // ========================== Pass-Fail Check ========================== 
 
     // ALU DUT
-    if (alu_curr_trans.rst) begin
+    if (data_tx_curr_trans.rst) begin
       `uvm_info("RESET", $sformatf("do not compare"), UVM_LOW)
         PASS(); // May want to remove pass
     end
-    else if (alu_curr_trans.RD != alu_expected_RD) begin
-        `uvm_error("COMPARE", $sformatf("Transaction failed in ALU DUT! ACT=%d, EXP=%d", alu_curr_trans.RD, alu_expected_RD))
+    else if (data_tx_curr_trans.ALU_data_out != alu_expected_data_out) begin
+        `uvm_error("COMPARE", $sformatf("Transaction failed in ALU DUT! ACT=%d, EXP=%d", data_tx_curr_trans.ALU_data_out, alu_expected_data_out))
         FAIL();
     end
-    else if (alu_curr_trans.Mem_addr != alu_expected_mem_addr) begin
-        `uvm_error("COMPARE", $sformatf("Transaction failed in ALU DUT! ACT=%d, EXP=%d", alu_curr_trans.Mem_addr, alu_expected_mem_addr))
-        FAIL();
-    end
-
-    // Register File DUT
-    else if (rf_curr_trans.RS1_data != rf_expected_RS1_data) begin
-         `uvm_error("COMPARE", $sformatf("Transaction failed in RF DUT! ACT=%d, EXP=%d", rf_curr_trans.RS1_data, rf_expected_RS1_data))
-        FAIL();
-    end
-    else if (rf_curr_trans.RS2_data != rf_expected_RS2_data) begin
-         `uvm_error("COMPARE", $sformatf("Transaction failed in RF DUT! ACT=%d, EXP=%d", rf_curr_trans.RS2_data, rf_expected_RS2_data))
+    else if (data_tx_curr_trans.Mem_addr_out != alu_expected_mem_addr) begin
+        `uvm_error("COMPARE", $sformatf("Transaction failed in ALU DUT! ACT=%d, EXP=%d", data_tx_curr_trans.Mem_addr_out, alu_expected_mem_addr))
         FAIL();
     end
 
     // Data Memory DUT
-    else if (dmu_curr_trans.out_data != dmu_expected_out_data) begin
-         `uvm_error("COMPARE", $sformatf("Transaction failed in DMU DUT! ACT=%d, EXP=%d", dmu_curr_trans.out_data, dmu_expected_out_data))
+    else if (data_tx_curr_trans.dmu_out_data != dmu_expected_out_data) begin
+         `uvm_error("COMPARE", $sformatf("Transaction failed in DMU DUT! ACT=%d, EXP=%d", data_tx_curr_trans.dmu_out_data, dmu_expected_out_data))
         FAIL();
     end
     else begin
@@ -202,5 +168,5 @@ function void FAIL();
     ERROR_CNT++;
 endfunction
 
-endclass : risc_v_scoreboard
+endclass : scoreboard
 
