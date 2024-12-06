@@ -2,6 +2,8 @@ class data_tx_driver extends uvm_driver#(data_tx_sequence_item);
   `uvm_component_utils(data_tx_driver)
    
   virtual data_tx_interface data_tx_vif;
+  
+  parameter R_TYPE = 7'h33, I_TYPE = 7'h13, LOAD = 7'b0000011, STORE = 7'b0100011;
 
   data_tx_sequence_item data_tx_item;
 
@@ -53,28 +55,27 @@ class data_tx_driver extends uvm_driver#(data_tx_sequence_item);
   
   task drive(data_tx_sequence_item data_tx_item);
     @(posedge data_tx_vif.clk)begin
-
         // Global Reset
-        data_tx_vif.rst = data_tx_item.rst;
-        data_tx_vif.pc = data_tx_item.pc;
+        data_tx_vif.rst <= data_tx_item.rst;
+        data_tx_vif.pc <= data_tx_item.pc;
         
         // RF Input Signals
-        data_tx_vif.RS1 = data_tx_item.RS1;
-        data_tx_vif.RS2 = data_tx_item.RS2;
-        data_tx_vif.RD = data_tx_item.RD;
+        data_tx_vif.RS1 <= data_tx_item.RS1;
+      data_tx_vif.RS2 <= (data_tx_item.opcode == I_TYPE || data_tx_item.opcode == LOAD || data_tx_item.opcode == STORE) ? data_tx_item.Imm_reg[4:0] : data_tx_item.RS2;
+        data_tx_vif.RD <= data_tx_item.RD;
 
         // ALU Input Signals
-        data_tx_vif.Funct3 = data_tx_item.Funct3;
-        data_tx_vif.Funct7 = data_tx_item.Funct7;
-        data_tx_vif.Imm_reg = data_tx_item.Imm_reg;
-        data_tx_vif.Shamt = data_tx_item.Shamt;
-        data_tx_vif.opcode = data_tx_item.opcode;
+      data_tx_vif.Funct7 <= (data_tx_item.opcode == I_TYPE || data_tx_item.opcode == LOAD || data_tx_item.opcode == STORE) ? data_tx_item.Imm_reg[11:5] : data_tx_item.Funct7;
+        data_tx_vif.Funct3 <= data_tx_item.Funct3;
+        data_tx_vif.Imm_reg <= data_tx_item.Imm_reg;
+        data_tx_vif.Shamt <= data_tx_item.Shamt;
+        data_tx_vif.opcode <= data_tx_item.opcode;
 
         // RF & DMU Input WE
-        data_tx_vif.write_en = data_tx_item.write_en;
+        data_tx_vif.write_en <= data_tx_item.write_en;
 
         // DMU Input Signal
-        data_tx_vif.read_en = data_tx_item.read_en;
+        data_tx_vif.read_en <= data_tx_item.read_en;
 
     end
   endtask: drive

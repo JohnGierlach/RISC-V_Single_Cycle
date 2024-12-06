@@ -18,10 +18,26 @@ parameter WIDTH=32;
 covergroup dut_cov;
     option.per_instance=1;
     // Arbitrary number of bins
-    cp_RS1_data: coverpoint txn.RS1_data_out {option.auto_bin_max=8;}
-    cp_RS2_data: coverpoint txn.RS2_data_out {option.auto_bin_max=8;}
-    cp_dmu_out_data: coverpoint txn.dmu_out_data {option.auto_bin_max=8;}
-    cp_alu_data_out: coverpoint txn.ALU_data_out {option.auto_bin_max=8;}
+    cp_RS1_data: coverpoint txn.RS1_data_out {      
+      bins zero = {32'h0000};
+      bins low_range = {[32'h0001:32'h00fe]};
+      bins high_range = {[32'h00ff:32'hffff]};
+    }
+    cp_RS2_data: coverpoint txn.RS2_data_out {      
+      bins zero = {32'h0000};
+      bins low_range = {[32'h0001:32'h00fe]};
+      bins high_range = {[32'h00ff:32'hffff]};
+    }
+    cp_dmu_out_data: coverpoint txn.dmu_out_data {      
+      bins zero = {32'h0000};
+      bins low_range = {[32'h0001:32'h00fe]};
+      bins high_range = {[32'h00ff:32'hffff]};
+    }
+    cp_alu_data_out: coverpoint txn.ALU_data_out {
+      bins zero = {32'h0000};
+      bins low_range = {[32'h0001:32'h00fe]};
+      bins high_range = {[32'h00ff:32'hffff]};
+    }
     cp_imm_reg: coverpoint txn.Imm_reg iff (txn.opcode == I_TYPE) {option.auto_bin_max=8;}
 
     cp_opcode: coverpoint txn.opcode{
@@ -29,8 +45,8 @@ covergroup dut_cov;
         bins i_type_op = {I_TYPE};
         bins load_op = {LOAD};
         bins store_op = {STORE};
-        bins branch_op = {BRANCH};
-        bins jump_op = {JUMP};
+        //bins branch_op = {BRANCH};
+        //bins jump_op = {JUMP};
         bins other = default;
     }
     
@@ -46,10 +62,10 @@ covergroup dut_cov;
         bins other = default;
     }
 
-    cp_Funct7: coverpoint txn.Funct7 iff (txn.opcode==R_TYPE || txn.opcode==I_TYPE)
+  cp_Funct7: coverpoint txn.Funct7 iff (txn.Funct3 == ADD || txn.Funct3 == SLTU)
     {
         bins zero = {'0};
-        bins nonzero = default;
+        bins h_20 = {7'h20};
     }
 
     cp_arithmetic_instructions: cross cp_opcode, cp_Funct3;

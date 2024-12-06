@@ -21,7 +21,7 @@ import uvm_pkg::*;
 `include "alu_top.v"
 `include "dmu_engine.v"
 `include "register_select.v"
-`include "data_tx.v"
+//`include "data_tx.v"
 `include "data_tx_interface.sv"
 
 module top;

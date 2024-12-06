@@ -31,7 +31,7 @@ class data_tx_env extends uvm_env;
     `uvm_info("ENV_CLASS", "Connect Phase!", UVM_HIGH)
     
     agnt.mon.data_tx_monitor_port.connect(scb.data_tx_scoreboard_port);
-    agnt.mon.data_tx_monitor_port.connect(coverage.data_tx_coverage_port);
+    agnt.mon.data_tx_monitor_port.connect(cov.data_tx_coverage_port);
   endfunction: connect_phase
   
   //--------------------------------------------------------

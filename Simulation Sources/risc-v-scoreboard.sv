@@ -112,7 +112,7 @@ class scoreboard extends uvm_scoreboard;
                 SLL:    alu_expected_data_out = out_tr.RS1_data_out << expected_RS2_data;
                 // Potential Edge Case
                 SLT:    alu_expected_data_out = (out_tr.RS1_data_out[WIDTH-1] ^ expected_RS2_data[WIDTH-1]) ? 										out_tr.RS1_data_out[WIDTH-1] : 
-                {(out_tr.RS1_data_out - expected_RS2_data)}[WIDTH-1];
+                  (out_tr.RS1_data_out < expected_RS2_data);
                 SLTU:   alu_expected_data_out = (out_tr.RS1_data_out < expected_RS2_data) ? 1'b1 : 1'b0;
                 XOR:    alu_expected_data_out = out_tr.RS1_data_out ^ expected_RS2_data;
                 SRL:    alu_expected_data_out = (out_tr.Funct7 == 7'h20) ? (out_tr.RS1_data_out >>> expected_RS2_data) : 							(out_tr.RS1_data_out >> expected_RS2_data);
@@ -123,14 +123,13 @@ class scoreboard extends uvm_scoreboard;
         end 
         else if (out_tr.opcode == I_TYPE) begin
             case(out_tr.Funct3)
-              ADD:    alu_expected_data_out = (out_tr.Funct7 == 7'h20) ? (out_tr.RS1_data_out + out_tr.Imm_reg) : 								(out_tr.RS1_data_out - out_tr.Imm_reg);
-                SLL:    alu_expected_data_out = out_tr.RS1_data_out << out_tr.Shamt;
+              ADD:    alu_expected_data_out = (out_tr.Funct7 != 7'h20) ? (out_tr.RS1_data_out + out_tr.Imm_reg) : 								(out_tr.RS1_data_out - out_tr.Imm_reg);
+                SLL:    alu_expected_data_out = out_tr.RS1_data_out << out_tr.RS2;
                 // Might be wrong
-                SLT:    alu_expected_data_out = (out_tr.RS1_data_out[WIDTH-1] ^ out_tr.Imm_reg[11]) ? out_tr.RS1_data_out[WIDTH-1] : 
-                        {(out_tr.RS1_data_out - out_tr.Imm_reg)}[WIDTH-1];
+                SLT:    alu_expected_data_out = (out_tr.RS1_data_out < out_tr.Imm_reg);
                 SLTU:   alu_expected_data_out = (out_tr.RS1_data_out < out_tr.Imm_reg) ? 1'b1 : 1'b0;
                 XOR:    alu_expected_data_out = out_tr.RS1_data_out ^ out_tr.Imm_reg;
-                SRL:    alu_expected_data_out = (out_tr.Funct7 == 7'h20) ? (out_tr.RS1_data_out >>> out_tr.Shamt) : 								(out_tr.RS1_data_out >> out_tr.Shamt);
+                SRL:    alu_expected_data_out = (out_tr.Funct7 == 7'h20) ? (out_tr.RS1_data_out >>> out_tr.RS2) : 								(out_tr.RS1_data_out >> out_tr.RS2);
                 OR:     alu_expected_data_out = out_tr.RS1_data_out | out_tr.Imm_reg;
                 AND:    alu_expected_data_out = out_tr.RS1_data_out & out_tr.Imm_reg;
                 default:    alu_expected_data_out = alu_expected_data_out;
@@ -162,13 +161,40 @@ class scoreboard extends uvm_scoreboard;
     // ========================== Pass-Fail Check ========================== 
 	
     // ALU DUT
-    `uvm_info("VALUES", $sformatf("RS1:%d RS2:%d RD:%d Imm_Reg:%d Op:%b, Funct3:%b, Re:%d We:%d", out_tr.RS1,out_tr.RS2, 
+    //`uvm_info("VALUES", $sformatf("RS1:%d RS2:%d RD:%d Imm_Reg:%d Op:%b, Funct3:%b, Re:%d We:%d, Shamt:%d", out_tr.RS1,out_tr.RS2, 
+                                                                                        //out_tr.RD,
+                                                                                        //out_tr.Imm_reg,
+                                                                                        //out_tr.opcode,
+                                  														//out_tr.Funct3,
+                                                                                        //out_tr.read_en,
+                                   									                    //out_tr.write_en,
+                                                                                        //out_tr.Shamt), UVM_LOW)
+    
+    //`uvm_info("VALUES", $sformatf("ALU_data_out:%d\tMem_addr_out:%d\tRS1_D:%d\tRS2_D:%d\tDMU_Data:%d",  out_tr.ALU_data_out,
+                                                                                     //out_tr.Mem_addr_out,
+                                   										             //out_tr.RS1_data_out,
+                                   									                 //out_tr.RS2_data_out,
+                                                                                     //out_tr.dmu_out_data), UVM_LOW)
+    
+    //`uvm_info("VALUES", $sformatf("EXP_ALU_out:%d\tEXP_Mem_addr:%d\tEXP_RS1:%d\tEXP_RS2:%d\tEXP_DMU_Data:%d", alu_expected_data_out,
+                                                                                                //alu_expected_mem_addr,
+                                                                                                //expected_RS1_data,
+                                  																//expected_RS2_data,
+                                 																//dmu_expected_out_data), UVM_LOW)
+    if (out_tr.rst) begin
+      `uvm_info("RESET", $sformatf("do not compare"), UVM_LOW)
+        PASS(); // May want to remove pass
+    end
+    else if (out_tr.ALU_data_out != alu_expected_data_out) begin
+        `uvm_error("COMPARE", $sformatf("Transaction failed in ALU DUT! ACT=%d, EXP=%d", out_tr.ALU_data_out, alu_expected_data_out))
+          `uvm_info("VALUES", $sformatf("RS1:%d RS2:%d RD:%d Imm_Reg:%d Op:%b, Funct3:%b, Re:%d We:%d, Shamt:%d", out_tr.RS1,out_tr.RS2, 
                                                                                         out_tr.RD,
                                                                                         out_tr.Imm_reg,
                                                                                         out_tr.opcode,
                                   														out_tr.Funct3,
                                                                                         out_tr.read_en,
-                                   									                    out_tr.write_en), UVM_LOW)
+                                   									                    out_tr.write_en,
+                                                                                        out_tr.Shamt), UVM_LOW)
     
     `uvm_info("VALUES", $sformatf("ALU_data_out:%d\tMem_addr_out:%d\tRS1_D:%d\tRS2_D:%d\tDMU_Data:%d",  out_tr.ALU_data_out,
                                                                                      out_tr.Mem_addr_out,
@@ -181,22 +207,58 @@ class scoreboard extends uvm_scoreboard;
                                                                                                 expected_RS1_data,
                                   																expected_RS2_data,
                                  																dmu_expected_out_data), UVM_LOW)
-    if (out_tr.rst) begin
-      `uvm_info("RESET", $sformatf("do not compare"), UVM_LOW)
-        PASS(); // May want to remove pass
-    end
-    else if (out_tr.ALU_data_out != alu_expected_data_out) begin
-        `uvm_error("COMPARE", $sformatf("Transaction failed in ALU DUT! ACT=%d, EXP=%d", out_tr.ALU_data_out, alu_expected_data_out))
         FAIL();
     end
     else if (out_tr.Mem_addr_out != alu_expected_mem_addr) begin
         `uvm_error("COMPARE", $sformatf("Transaction failed in ALU DUT! ACT=%d, EXP=%d", out_tr.Mem_addr_out, alu_expected_mem_addr))
+              `uvm_error("COMPARE", $sformatf("Transaction failed in ALU DUT! ACT=%d, EXP=%d", out_tr.ALU_data_out, alu_expected_data_out))
+          `uvm_info("VALUES", $sformatf("RS1:%d RS2:%d RD:%d Imm_Reg:%d Op:%b, Funct3:%b, Re:%d We:%d, Shamt:%d", out_tr.RS1,out_tr.RS2, 
+                                                                                        out_tr.RD,
+                                                                                        out_tr.Imm_reg,
+                                                                                        out_tr.opcode,
+                                  														out_tr.Funct3,
+                                                                                        out_tr.read_en,
+                                   									                    out_tr.write_en,
+                                                                                        out_tr.Shamt), UVM_LOW)
+    
+    `uvm_info("VALUES", $sformatf("ALU_data_out:%d\tMem_addr_out:%d\tRS1_D:%d\tRS2_D:%d\tDMU_Data:%d",  out_tr.ALU_data_out,
+                                                                                     out_tr.Mem_addr_out,
+                                   										             out_tr.RS1_data_out,
+                                   									                 out_tr.RS2_data_out,
+                                                                                     out_tr.dmu_out_data), UVM_LOW)
+    
+    `uvm_info("VALUES", $sformatf("EXP_ALU_out:%d\tEXP_Mem_addr:%d\tEXP_RS1:%d\tEXP_RS2:%d\tEXP_DMU_Data:%d", alu_expected_data_out,
+                                                                                                alu_expected_mem_addr,
+                                                                                                expected_RS1_data,
+                                  																expected_RS2_data,
+                                 																dmu_expected_out_data), UVM_LOW)
         FAIL();
     end
 
     // Data Memory DUT
     else if (out_tr.dmu_out_data != dmu_expected_out_data) begin
          `uvm_error("COMPARE", $sformatf("Transaction failed in DMU DUT! ACT=%d, EXP=%d", out_tr.dmu_out_data, dmu_expected_out_data))
+              `uvm_error("COMPARE", $sformatf("Transaction failed in ALU DUT! ACT=%d, EXP=%d", out_tr.ALU_data_out, alu_expected_data_out))
+          `uvm_info("VALUES", $sformatf("RS1:%d RS2:%d RD:%d Imm_Reg:%d Op:%b, Funct3:%b, Re:%d We:%d, Shamt:%d", out_tr.RS1,out_tr.RS2, 
+                                                                                        out_tr.RD,
+                                                                                        out_tr.Imm_reg,
+                                                                                        out_tr.opcode,
+                                  														out_tr.Funct3,
+                                                                                        out_tr.read_en,
+                                   									                    out_tr.write_en,
+                                                                                        out_tr.Shamt), UVM_LOW)
+    
+    `uvm_info("VALUES", $sformatf("ALU_data_out:%d\tMem_addr_out:%d\tRS1_D:%d\tRS2_D:%d\tDMU_Data:%d",  out_tr.ALU_data_out,
+                                                                                     out_tr.Mem_addr_out,
+                                   										             out_tr.RS1_data_out,
+                                   									                 out_tr.RS2_data_out,
+                                                                                     out_tr.dmu_out_data), UVM_LOW)
+    
+    `uvm_info("VALUES", $sformatf("EXP_ALU_out:%d\tEXP_Mem_addr:%d\tEXP_RS1:%d\tEXP_RS2:%d\tEXP_DMU_Data:%d", alu_expected_data_out,
+                                                                                                alu_expected_mem_addr,
+                                                                                                expected_RS1_data,
+                                  																expected_RS2_data,
+                                 																dmu_expected_out_data), UVM_LOW)
         FAIL();
     end
     else begin

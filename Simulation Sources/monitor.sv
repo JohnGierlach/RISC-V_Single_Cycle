@@ -20,7 +20,7 @@ class data_tx_monitor extends uvm_monitor;
     super.build_phase(phase);
     `uvm_info("MONITOR_CLASS", "Build Phase!", UVM_HIGH)
 
-    data_tx_monitor_port = new("alu_monitor_port", this);
+    data_tx_monitor_port = new("data_tx_monitor_port", this);
     
     if(!(uvm_config_db#(virtual data_tx_interface)::get(this, "*",  "data_tx_vif", data_tx_vif)))begin
       `uvm_error("MONTIOR_CLASS", "Failed to get VIF from config DB!");
@@ -72,12 +72,8 @@ class data_tx_monitor extends uvm_monitor;
 
         // DMU Input Signal
         data_tx_item.read_en = data_tx_vif.read_en;
-      end
-     
-      // Capturing all outputs for data_tx interface
-      @(posedge data_tx_vif.clk)begin
-      	
-        // RF Output signals
+        
+                // RF Output signals
         data_tx_item.RS1_data_out = data_tx_vif.RS1_data_out;
       	data_tx_item.RS2_data_out = data_tx_vif.RS2_data_out;
         
@@ -87,8 +83,14 @@ class data_tx_monitor extends uvm_monitor;
 
         // DMU Output Signals
       	data_tx_item.dmu_out_data = data_tx_vif.dmu_out_data;
-      	
       end
+      
+      // Capturing all outputs for data_tx interface
+      //@(posedge data_tx_vif.clk)begin
+      	
+
+      	
+      //end
 
       data_tx_monitor_port.write(data_tx_item);
 

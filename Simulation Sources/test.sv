@@ -8,6 +8,7 @@ class data_tx_test extends uvm_test;
   r_i_type_alu_sequence r_i_type_alu_seq;
   write_sequence        wr_seq;
   read_sequence         rd_seq;
+  rd_wr_conflict_sequence rd_wr_c_seq;
 
   
   //--------------------------------------------------------
@@ -53,7 +54,7 @@ class data_tx_test extends uvm_test;
     // Reset sequence, reset ALU, DMU, and RF
     reset_seq = base_sequence::type_id::create("reset_seq");
     reset_seq.start(env.agnt.seqr);
-    #20;
+    #10;
 	
     `uvm_info("SEQUENCE", "Finished Reset Sequence", UVM_HIGH);
     
@@ -73,16 +74,22 @@ class data_tx_test extends uvm_test;
     end
 
     // Write data from register file to DMU
-    repeat(1000)begin
+    repeat(100)begin
       wr_seq = write_sequence::type_id::create("wr_seq");
       wr_seq.start(env.agnt.seqr);
       #10;
     end
     
     // Read data from register file to DMU
-    repeat(1000)begin
+    repeat(100)begin
       rd_seq = read_sequence::type_id::create("rd_seq");
       rd_seq.start(env.agnt.seqr);
+      #10;
+    end
+    
+    repeat(100)begin
+      rd_wr_c_seq = rd_wr_conflict_sequence::type_id::create("rd_wr_c_seq");
+      rd_wr_c_seq.start(env.agnt.seqr);
       #10;
     end
 

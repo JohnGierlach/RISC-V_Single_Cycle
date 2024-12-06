@@ -71,7 +71,6 @@ class init_regs_sequence extends base_sequence;
       // Sets operation as ADDI 
       opcode == 7'h13;
       Funct3 == 3'h0;
-      Funct7 == 7'h00;
     };
 
     finish_item(data_tx_item);
@@ -215,3 +214,49 @@ class read_sequence extends base_sequence;
   endtask: body
 	
 endclass: read_sequence
+
+//-----------------------------------------------------------------
+// READ WRITE CONFLIC SEQUENCE - PRODUCES WR/RD CONFLICT
+//-----------------------------------------------------------------
+class rd_wr_conflict_sequence extends base_sequence;
+	
+  `uvm_object_utils(rd_wr_conflict_sequence)
+  
+  data_tx_sequence_item data_tx_item;
+  
+  function new(string name = "rd_wr_conflict_sequence");
+    super.new(name);
+    //`uvm_info("READ_SEQ", "Inside Constructor!", UVM_HIGH);
+  endfunction: new
+  
+  task body();
+    //`uvm_info("READ_SEQ", "Inside body task!", UVM_HIGH);
+    
+    data_tx_item = data_tx_sequence_item::type_id::create("data_tx_item");
+
+    start_item(data_tx_item);
+    
+    data_tx_item.randomize() with 
+    {
+      rst == 0;
+
+      // Sets the opcode to LW
+      opcode == 7'b0000011 || opcode == 7'b0100011;
+
+      // further contrain Imm_reg to access only access possible memory blocks
+      Imm_reg inside {[1:128]};
+
+      // Set base addr to 0 
+      RS1 == 0;
+	  RS2 inside {[1:31]};
+      RD inside {[1:31]};
+
+      read_en == 1;
+      write_en == 1;
+    };
+
+    finish_item(data_tx_item);
+    
+  endtask: body
+	
+endclass: rd_wr_conflict_sequence
