@@ -32,7 +32,7 @@ class data_tx_sequence_item extends uvm_sequence_item;
     opcode dist {
       R_TYPE := 1, // R-Type
       I_TYPE := 1, // I-Type
-	  LOAD   := 1,
+	    LOAD   := 1,
       STORE  := 1
     };
   }
