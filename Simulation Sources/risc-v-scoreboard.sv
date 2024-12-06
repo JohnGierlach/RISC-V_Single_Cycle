@@ -161,26 +161,6 @@ class scoreboard extends uvm_scoreboard;
     // ========================== Pass-Fail Check ========================== 
 	
     // ALU DUT
-    //`uvm_info("VALUES", $sformatf("RS1:%d RS2:%d RD:%d Imm_Reg:%d Op:%b, Funct3:%b, Re:%d We:%d, Shamt:%d", out_tr.RS1,out_tr.RS2, 
-                                                                                        //out_tr.RD,
-                                                                                        //out_tr.Imm_reg,
-                                                                                        //out_tr.opcode,
-                                  														//out_tr.Funct3,
-                                                                                        //out_tr.read_en,
-                                   									                    //out_tr.write_en,
-                                                                                        //out_tr.Shamt), UVM_LOW)
-    
-    //`uvm_info("VALUES", $sformatf("ALU_data_out:%d\tMem_addr_out:%d\tRS1_D:%d\tRS2_D:%d\tDMU_Data:%d",  out_tr.ALU_data_out,
-                                                                                     //out_tr.Mem_addr_out,
-                                   										             //out_tr.RS1_data_out,
-                                   									                 //out_tr.RS2_data_out,
-                                                                                     //out_tr.dmu_out_data), UVM_LOW)
-    
-    //`uvm_info("VALUES", $sformatf("EXP_ALU_out:%d\tEXP_Mem_addr:%d\tEXP_RS1:%d\tEXP_RS2:%d\tEXP_DMU_Data:%d", alu_expected_data_out,
-                                                                                                //alu_expected_mem_addr,
-                                                                                                //expected_RS1_data,
-                                  																//expected_RS2_data,
-                                 																//dmu_expected_out_data), UVM_LOW)
     if (out_tr.rst) begin
       `uvm_info("RESET", $sformatf("do not compare"), UVM_LOW)
         PASS(); // May want to remove pass
