@@ -43,7 +43,6 @@ covergroup dut_cov;
         bins srl = {SRL};
         bins Or = {OR};
         bins And = {AND};
-        bins nop = {NOP};
         bins other = default;
     }
 
@@ -51,11 +50,6 @@ covergroup dut_cov;
     {
         bins zero = {'0};
         bins nonzero = default;
-    }
-
-  cp_shamt: coverpoint txn.Shamt iff (txn.opcode==I_TYPE && (txn.Funct3 == SLL || txn.Funct3 == SRL))
-    {
-        option.auto_bin_max=32;
     }
 
     cp_arithmetic_instructions: cross cp_opcode, cp_Funct3;
@@ -77,7 +71,12 @@ covergroup dut_cov;
 
     // Coverpoint for memory address accesses
     cp_mem_addr: coverpoint txn.Mem_addr_out iff (txn.opcode==LOAD || txn.opcode==STORE)
-  {option.auto_bin_max=MEM_DEPTH;}
+    {
+        bins lower_addr = {[0:31]};
+        bins mid_low_addr = {[32:63]};
+        bins mid_high_addr = {[64:95]};
+        bins higher_addr = {[96:127]};
+    }
 
 endgroup : dut_cov
 
