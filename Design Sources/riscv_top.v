@@ -4,7 +4,10 @@ module riscv_top #(parameter WIDTH = 32)
     (
     input clk,
     input rst,
-    output[WIDTH-1:0] rd
+    input[4:0] reg_sel,
+    output[WIDTH-1:0] rd,
+    output reg [3:0]segEnable, 
+    output wire [6:0]outSeg
     );
     
     
@@ -46,8 +49,10 @@ module riscv_top #(parameter WIDTH = 32)
     // Register select module 
     register_select REG_FILE_SELECT(.clk(clk), 
                                     .rst(rst),
+                                    .reg_sel(reg_sel),
                                     .write_en(write_en), 
-                                    .RD_data(RD_data), 
+                                    .RD_data(RD_data),
+                                    .Reg_display(rd),
                                     .RS1_data(RS1_data), 
                                     .RS2_data(RS2_data), 
                                     .RS1(RS1),
@@ -69,8 +74,6 @@ module riscv_top #(parameter WIDTH = 32)
                        .opcode(opcode));
                  
     
-
-    
     // Data memory unit (DMU) for loading and storing data from/to memory
     dmu_engine DATA_MEMORY(.clk(clk),
                            .rst(rst),
@@ -80,7 +83,13 @@ module riscv_top #(parameter WIDTH = 32)
                            .write_data(RS2_data),
                            .out_data(MEM_data));
     
+    // Display selected register on the 7-segement display
+    seven_deg DISPLAY(.clk(clk),
+                      .rst(rst),
+                      .reg_display(rd),
+                      .outSeg(outSeg),
+                      .segEnable(segEnable));
+    
     assign new_pc = branch ? Funct7+curr_pc-4: jump ? {Funct7, RS2, RS1, Funct3}+curr_pc-4:curr_pc;
     assign RD_data = read_en ? MEM_data:ALU_data;                                                                    
-    assign rd = RD_data;
 endmodule

@@ -1,8 +1,8 @@
 module register_select #(parameter WIDTH = 32)(
     input clk, rst, write_en,
-    input[4:0] RS1, RS2, RD,
+    input[4:0] RS1, RS2, RD, reg_sel,
     input[WIDTH-1:0] RD_data,
-    output[WIDTH-1:0] RS1_data, RS2_data
+    output[WIDTH-1:0] RS1_data, RS2_data, Reg_display
 );
     reg[WIDTH-1:0] Reg_list [0:WIDTH-1];
   
@@ -19,8 +19,9 @@ module register_select #(parameter WIDTH = 32)(
             if(!write_en)
                 Reg_list[RD] <= RD_data;
         end
-   end
-   
+   end 
+
+   assign Reg_display = Reg_list[reg_sel];
    assign RS1_data = Reg_list[RS1];
    assign RS2_data = Reg_list[RS2]; 
    
