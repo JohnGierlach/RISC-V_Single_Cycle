@@ -6,7 +6,9 @@ module seven_segment_top#(parameter WIDTH = 32)(
     output wire [6:0]outSeg 
     ); 
      
-    reg [31:0] clockCounter; 
+    reg [16:0] clockCounter;
+    reg [27:0] low_high_counter;
+    wire [6:0] hi_Seg, lo_Seg; 
     wire [6:0] lo_ones, lo_tens, lo_huns, lo_thous;      
     wire [6:0] hi_ones, hi_tens, hi_huns, hi_thous;   
     wire slowClk;
@@ -17,17 +19,20 @@ module seven_segment_top#(parameter WIDTH = 32)(
     begin 
         
         // If rst, set counter to 0 
-        if(rst) 
-            clockCounter <=0; 
+        if(rst) begin
+            clockCounter <=0;
+            low_high_counter <= 0;
+        end 
         
         // Each clock cycle increment counter 
-        else 
-            clockCounter <= clockCounter + 1; 
-            
+        else begin
+            clockCounter <= clockCounter + 1;
+            low_high_counter <= low_high_counter + 1; 
+        end  
     end     
     
     assign slowClk = clockCounter[16:16];
-    assign lo_hi_seg = clockCounter[27:27];
+    assign lo_hi_seg = low_high_counter[27:27];
     
     // Switch to each 4 segment each slow clock cycle 
     always@(posedge slowClk or posedge rst) 

@@ -11,7 +11,7 @@ module print_seg(
      always @(posedge slowClk or posedge reset)
      begin
         if(reset)
-            outSeg <= 7'b0000001;
+            outSeg <= 7'b1000000;
 
         case (reg_hex)
             4'h0: outSeg = 7'b1000000;
@@ -24,12 +24,12 @@ module print_seg(
             4'h7: outSeg = 7'b1111000;
             4'h8: outSeg = 7'b0000000;
             4'h9: outSeg = 7'b0011000;
-            4'ha: outSeg = 7'b1000000;
-            4'hb: outSeg = 7'b1111001;
-            4'hc: outSeg = 7'b0100100;
-            4'hd: outSeg = 7'b0110000;
-            4'he: outSeg = 7'b0011001;
-            4'hf: outSeg = 7'b0010010;
+            4'ha: outSeg = 7'b0001000;
+            4'hb: outSeg = 7'b0000011;
+            4'hc: outSeg = 7'b1000110;
+            4'hd: outSeg = 7'b0100001;
+            4'he: outSeg = 7'b0000110;
+            4'hf: outSeg = 7'b0001110;
             default: outSeg = 7'b1000000;
         endcase
      end
