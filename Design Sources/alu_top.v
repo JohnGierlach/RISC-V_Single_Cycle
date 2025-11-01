@@ -13,7 +13,7 @@ module alu_top#(parameter WIDTH = 32)
     input[11:0] Imm_reg,
     input[4:0] Shamt,
     output [WIDTH-1:0] RD,
-    output [WIDTH-1:0] Mem_addr
+    output [WIDTH-1:0] Mem_addr,
     output allow_branch
 
 );
@@ -88,8 +88,8 @@ module alu_top#(parameter WIDTH = 32)
         else
             temp_RD <= 0;
     end
-
-    assign allow_branch = (temp_RD == 1'b1) ? 1'b1 : 1'b0;
+    
+    assign allow_branch = (temp_RD == 1'b1 & opcode == 7'b1100011) ? 1'b1 : 1'b0;
     assign RD = temp_RD;
     assign Mem_addr = mem_addr;
     

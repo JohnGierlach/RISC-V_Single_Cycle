@@ -8,7 +8,7 @@ module instruction_mem #(parameter WIDTH = 32)
     output [6:0] Funct7,
     output [2:0] Funct3,
     output [6:0] opcode,
-    output read_en, write_en, branch, jump
+    output read_en, mem_write_en, reg_write_en, branch, jump
     );
     
     // FW registers
@@ -17,31 +17,25 @@ module instruction_mem #(parameter WIDTH = 32)
     reg[2:0] funct3;
     reg[6:0] Opcode;
     
-    localparam NUM_INST = 19;
+    localparam NUM_INST = 11;
     
     // Last instruction must be a NO-OP 
-    reg[WIDTH-1:0] inst_rom [0:NUM_INST-1] = 
-    {
-        32'h00A08093, //ADDI
-        32'h00A10113, //ADDI
-        32'h001101B3, //ADD
-        32'h18208663, //BEQ
-        32'h00312233, //SLT
-        32'h00115293, //SRLI
-        32'h00211313, //SLLI
-        32'h0032F3B3, //AND
-        32'h0000C86F, //JAL
-        32'h0032E433, //OR
-        32'h0032C4B3, //XOR
-        32'h40610533, //SUB
-        32'h004155B3, //SRL
-        32'h00A02223, //SW
-        32'h00411633, //SLL
-        32'h40555693, //SRAI
-        32'h40555733, //SRA
-        32'h00402783, //LW
-        32'h0         //NO-OP
-    };
+reg [WIDTH-1:0] inst_rom [0:NUM_INST-1] = 
+{
+    32'h00550513, // ADDI x10, x0, 5304
+    32'h17000593, // ADDI x11, x0, 5
+    32'h00000613, // ADDI x12, x0, 0
+    32'h00100693, // ADDI x13, x0, 1
+    32'h00058663, // BEQ x11, x0, done
+    32'h00A60633, // ADD x12, x12, x10
+    32'h40D585B3, // SUB x11, x11, x13
+    32'h0001486F, // JAL x16, loop
+    32'h00160533, // ADD x10, x12, x1
+    32'h0000006F, // JAL x16, done
+    32'h00000000  // NOP (padding)
+};
+
+
 
     always@(posedge clk)begin
         if(rst)begin
@@ -93,7 +87,8 @@ module instruction_mem #(parameter WIDTH = 32)
     assign Funct7 = funct7;
     assign opcode = Opcode;
     assign read_en = Opcode == 7'b0000011 ? 1:0;
-    assign write_en = Opcode == 7'b0100011 ? 1:0;
+    assign mem_write_en = Opcode == 7'b0100011 ? 1:0;
+    assign reg_write_en = Opcode == 7'b0110011 | Opcode == 7'b0010011 ? 1:0;
     assign branch = (Opcode == 7'b1100011) ? 1:0;
     assign jump = (Opcode == 7'b1101111) ? 1:0;
     

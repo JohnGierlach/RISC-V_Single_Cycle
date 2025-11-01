@@ -4,7 +4,7 @@ module dmu_engine#(parameter WIDTH = 32)(
     input clk,
     input rst,
     input read_en,
-    input write_en,
+    input mem_write_en,
     input[WIDTH-1:0] write_data,
     input[WIDTH-1:0] addr,
     output[WIDTH-1:0] out_data
@@ -21,7 +21,7 @@ module dmu_engine#(parameter WIDTH = 32)(
         end
         
         // Write data to memory
-        if(write_en)
+        if(mem_write_en)
             mem_storage[addr-1] <= write_data;
         
     end

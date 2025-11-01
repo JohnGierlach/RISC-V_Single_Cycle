@@ -4,7 +4,10 @@ module riscv_top #(parameter WIDTH = 32)
     (
     input clk,
     input rst,
-    output[WIDTH-1:0] rd
+    input[4:0] reg_sel,
+    output[WIDTH-1:0] rd,
+    output reg [3:0]segEnable, 
+    output wire [6:0]outSeg
     );
     
     
@@ -20,7 +23,7 @@ module riscv_top #(parameter WIDTH = 32)
     wire[6:0] opcode;
     
     
-    wire read_en, write_en, branch, jump, allow_branch;
+    wire read_en, reg_write_en, mem_write_en, branch, jump, allow_branch;
     
     program_counter PC(.clk(clk),
                        .rst(rst),
@@ -38,7 +41,8 @@ module riscv_top #(parameter WIDTH = 32)
                                        .Funct3(Funct3),
                                        .Funct7(Funct7),
                                        .read_en(read_en),
-                                       .write_en(write_en),
+                                       .reg_write_en(reg_write_en),
+                                       .mem_write_en(mem_write_en),
                                        .branch(branch),
                                        .jump(jump),
                                        .opcode(opcode));    
@@ -46,8 +50,10 @@ module riscv_top #(parameter WIDTH = 32)
     // Register select module 
     register_select REG_FILE_SELECT(.clk(clk), 
                                     .rst(rst),
-                                    .write_en(write_en), 
-                                    .RD_data(RD_data), 
+                                    .reg_sel(reg_sel),
+                                    .reg_write_en(reg_write_en), 
+                                    .RD_data(RD_data),
+                                    .Reg_display(rd),
                                     .RS1_data(RS1_data), 
                                     .RS2_data(RS2_data), 
                                     .RS1(RS1),
@@ -66,20 +72,19 @@ module riscv_top #(parameter WIDTH = 32)
                        .Mem_addr(Mem_addr), 
                        .Imm_reg({Funct7, RS2}),
                        .Shamt(RS2),
-                       .opcode(opcode)
-                       .allow_branch(branch));
+                       .opcode(opcode),
+                       .allow_branch(allow_branch));
                  
     
     // Data memory unit (DMU) for loading and storing data from/to memory
     dmu_engine DATA_MEMORY(.clk(clk),
                            .rst(rst),
                            .read_en(read_en),
-                           .write_en(write_en),
+                           .mem_write_en(mem_write_en),
                            .addr(Mem_addr),
                            .write_data(RS2_data),
                            .out_data(MEM_data));
     
-    assign new_pc = allow_branch ? Funct7+curr_pc-4: jump ? {Funct7, RS2, RS1, Funct3}+curr_pc-4:curr_pc;
+    assign new_pc = allow_branch ? Funct7+curr_pc-4: jump ? {Funct7, RS2, RS1, Funct3}-4:curr_pc;
     assign RD_data = read_en ? MEM_data:ALU_data;                                                                    
-    assign rd = RD_data;
 endmodule
