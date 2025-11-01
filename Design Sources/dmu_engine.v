@@ -16,7 +16,7 @@ module dmu_engine#(parameter WIDTH = 32)(
     always@(posedge clk)begin
         if(rst)begin
             for(i = 0; i < WIDTH*WIDTH; i = i + 1)begin
-                mem_storage[i] = 32'b0;
+                mem_storage[i] <= 32'b0;
             end
         end
         

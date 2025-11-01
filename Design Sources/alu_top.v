@@ -14,6 +14,7 @@ module alu_top#(parameter WIDTH = 32)
     input[4:0] Shamt,
     output [WIDTH-1:0] RD,
     output [WIDTH-1:0] Mem_addr
+    output allow_branch
 
 );
     // Reg-to-Reg Parameters
@@ -88,6 +89,7 @@ module alu_top#(parameter WIDTH = 32)
             temp_RD <= 0;
     end
 
+    assign allow_branch = (temp_RD == 1'b1) ? 1'b1 : 1'b0;
     assign RD = temp_RD;
     assign Mem_addr = mem_addr;
     

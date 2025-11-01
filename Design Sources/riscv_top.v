@@ -20,7 +20,7 @@ module riscv_top #(parameter WIDTH = 32)
     wire[6:0] opcode;
     
     
-    wire read_en, write_en, branch, jump;
+    wire read_en, write_en, branch, jump, allow_branch;
     
     program_counter PC(.clk(clk),
                        .rst(rst),
@@ -66,10 +66,9 @@ module riscv_top #(parameter WIDTH = 32)
                        .Mem_addr(Mem_addr), 
                        .Imm_reg({Funct7, RS2}),
                        .Shamt(RS2),
-                       .opcode(opcode));
+                       .opcode(opcode)
+                       .allow_branch(branch));
                  
-    
-
     
     // Data memory unit (DMU) for loading and storing data from/to memory
     dmu_engine DATA_MEMORY(.clk(clk),
@@ -80,7 +79,7 @@ module riscv_top #(parameter WIDTH = 32)
                            .write_data(RS2_data),
                            .out_data(MEM_data));
     
-    assign new_pc = branch ? Funct7+curr_pc-4: jump ? {Funct7, RS2, RS1, Funct3}+curr_pc-4:curr_pc;
+    assign new_pc = allow_branch ? Funct7+curr_pc-4: jump ? {Funct7, RS2, RS1, Funct3}+curr_pc-4:curr_pc;
     assign RD_data = read_en ? MEM_data:ALU_data;                                                                    
     assign rd = RD_data;
 endmodule
