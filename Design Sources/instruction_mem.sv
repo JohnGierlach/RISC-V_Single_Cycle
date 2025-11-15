@@ -17,23 +17,17 @@ module instruction_mem #(parameter WIDTH = 32)
     reg[2:0] funct3;
     reg[6:0] Opcode;
     
-    localparam NUM_INST = 11;
+    localparam NUM_INST = 4;
     
     // Last instruction must be a NO-OP 
 reg [WIDTH-1:0] inst_rom [0:NUM_INST-1] = 
 {
-    32'h00550513, // ADDI x10, x0, 5304
-    32'h17000593, // ADDI x11, x0, 5
-    32'h00000613, // ADDI x12, x0, 0
-    32'h00100693, // ADDI x13, x0, 1
-    32'h00058663, // BEQ x11, x0, done
-    32'h00A60633, // ADD x12, x12, x10
-    32'h40D585B3, // SUB x11, x11, x13
-    32'h0001486F, // JAL x16, loop
-    32'h00160533, // ADD x10, x12, x1
-    32'h0000006F, // JAL x16, done
-    32'h00000000  // NOP (padding)
+    32'h00550513, // ADDI x10, x0, 5
+    32'h17000593, // ADDI x11, x0, 368
+    32'h22B50633, // MUL x12, x10, x11
+    32'h00000000  // padding / NOP
 };
+
 
 
 

@@ -58,8 +58,6 @@ module riscv_tb();
         rst = 1;
         #20;
         rst = 0;
-        
     end
-    
     always #10 clk = ~clk;
 endmodule

@@ -35,7 +35,7 @@ module alu_top#(parameter WIDTH = 32)
         // Register Operations RR
         else if(opcode == 7'b0110011)begin
             case(Funct3)
-                ADD:  temp_RD <=(Funct7 == 7'h20) ? RS1 - RS2 : RS1 + RS2; //Add SUB based on Funct7
+                ADD:  temp_RD <=(Funct7 == 7'h20) ? RS1 - RS2 : (Funct7 == 7'h11) ? RS1 * RS2 : RS1 + RS2; //Add SUB based on Funct7
                 SLL:  temp_RD <= RS1 << RS2;
                 SLT:  temp_RD <= (RS1 < RS2) ? 1'b1:1'b0;
                 SLTU: temp_RD <= (RS1 < RS2) ? 1'b1:1'b0;

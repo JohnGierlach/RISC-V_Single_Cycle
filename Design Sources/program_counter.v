@@ -33,6 +33,9 @@ module program_counter#(parameter WIDTH = 32)(
         if(rst)
             temp_pc <= 0;
         
+        else if(new_pc == 32'd12)
+            temp_pc <= temp_pc;
+        
         else begin
             temp_pc <= new_pc+4;
         end

@@ -85,6 +85,7 @@ module riscv_top #(parameter WIDTH = 32)
                            .write_data(RS2_data),
                            .out_data(MEM_data));
     
-    assign new_pc = allow_branch ? Funct7+curr_pc-4: jump ? {Funct7, RS2, RS1, Funct3}-4:curr_pc;
-    assign RD_data = read_en ? MEM_data:ALU_data;                                                                    
+    assign new_pc = allow_branch ? {Funct7, RD}+curr_pc-4: jump ? {Funct7, RS2, RS1, Funct3}-4:curr_pc;
+    assign RD_data = read_en ? MEM_data:ALU_data;
+    assign test_pc = curr_pc          ;                                                          
 endmodule
